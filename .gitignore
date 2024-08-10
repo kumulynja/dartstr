@@ -4,8 +4,11 @@
 .dart_tool/
 .packages
 build/
-# If you're building an application, you may want to check-in your pubspec.lock
-pubspec.lock
+# Melos requires pubspec.lock to be checked-in
+# pubspec.lock
+
+# Melos generates pubspec_overrides.yaml files to link local packages for development, this should be ignored by git.
+pubspec_overrides.yaml
 
 # Directory created by dartdoc
 # If you don't generate documentation locally you can remove this line.

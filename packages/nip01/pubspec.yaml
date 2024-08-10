@@ -1,0 +1,21 @@
+name: nip01
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.5.0
+
+# Add regular dependencies here.
+dependencies:
+  equatable: ^2.0.5
+  bip340: ^0.3.0
+  dartstr_utils: ^1.0.0
+  convert: ^3.1.1
+  crypto: ^3.0.3
+  meta: ^1.15.0
+  # path: ^1.8.0
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.24.0
