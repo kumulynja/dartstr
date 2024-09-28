@@ -1,7 +1,7 @@
 name: nip01
 description: A starting point for Dart libraries or applications.
 version: 0.0.1
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/kumulynja/dartstr/nip01
 
 environment:
   sdk: ^3.5.0
