@@ -1,5 +1,5 @@
 name: nip19
-description: A starting point for Dart libraries or applications.
+description: This package contains the bech32-encoding for Nostr entities as described in the NIP-19.
 version: 0.0.1
 repository: https://github.com/kumulynja/dartstr/nip19
 

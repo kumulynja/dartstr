@@ -1,5 +1,5 @@
 name: nip04
-description: A starting point for Dart libraries or applications.
+description: This package contains the encrypted direct message protocol flow for Nostr as described in the NIP-04.
 version: 0.0.1
 repository: https://github.com/kumulynja/dartstr/nip04
 
