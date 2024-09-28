@@ -19,17 +19,6 @@ This package takes care of the [wallet service](https://docs.nwc.dev/bitcoin-lig
 
 https://github.com/kumulynja/nwc_wallet/assets/92805150/4bbbbb87-8734-4ffa-ac78-1b01ff8d2c46
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  nip47: ^1.0.0
-```
-
 ## What does this package do for you?
 
 - It lets you generate or restore a Nostr keypair for the wallet
@@ -61,18 +50,13 @@ To use this package, your app should already have a Lightning Network node or wa
 
 ## Getting started
 
-<!--
-Install `nwc_wallet` as a dependency in your Flutter wallet app.
+### Installation
 
-```bash
-flutter pub add nwc_wallet
-``` -->
-
-Currently, the package is not yet released on pub.dev, so you have to add it as a git dependency in your `pubspec.yaml` file:
+In your `pubspec.yaml` file add:
 
 ```yaml
 dependencies:
-  nip47: ^1.0.0
+  nip47: ^0.0.1
 ```
 
 ## Usage

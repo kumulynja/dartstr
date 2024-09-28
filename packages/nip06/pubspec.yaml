@@ -1,6 +1,6 @@
 name: nip06
 description: A starting point for Dart libraries or applications.
-version: 1.0.0
+version: 0.0.1
 # repository: https://github.com/my_org/my_repo
 
 environment:
@@ -8,7 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  nip01: ^1.0.0
+  nip01: ^0.0.1
   bip39: ^1.0.6
   bip32: ^2.0.0
   convert: ^3.1.1

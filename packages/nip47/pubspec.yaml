@@ -1,6 +1,6 @@
 name: nip47
 description: A starting point for Dart libraries or applications.
-version: 1.0.0
+version: 0.0.1
 # repository: https://github.com/my_org/my_repo
 
 environment:
@@ -8,9 +8,9 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  dartstr_utils: ^1.0.0
-  nip01: ^1.0.0
-  nip04: ^1.0.0
+  dartstr_utils: ^0.0.1
+  nip01: ^0.0.1
+  nip04: ^0.0.1
   meta: ^1.15.0
   equatable: ^2.0.5
   # path: ^1.8.0

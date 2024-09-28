@@ -23,7 +23,7 @@ In your `pubspec.yaml` file add:
 
 ```yaml
 dependencies:
-  nip24: ^1.0.0
+  nip24: ^0.0.1
 ```
 
 ## Usage

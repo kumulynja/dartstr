@@ -1,6 +1,6 @@
 name: nip24
 description: A starting point for Dart libraries or applications.
-version: 1.0.0
+version: 0.0.1
 # repository: https://github.com/my_org/my_repo
 
 environment:
@@ -8,7 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  nip01: ^1.0.0
+  nip01: ^0.0.1
 
 dev_dependencies:
   lints: ^4.0.0
