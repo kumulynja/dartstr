@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/packages/nip04/melos_nip04.iml" filepath="$PROJECT_DIR$/packages/nip04/melos_nip04.iml" />
       <module fileurl="file://$PROJECT_DIR$/packages/nip06/melos_nip06.iml" filepath="$PROJECT_DIR$/packages/nip06/melos_nip06.iml" />
       <module fileurl="file://$PROJECT_DIR$/packages/nip19/melos_nip19.iml" filepath="$PROJECT_DIR$/packages/nip19/melos_nip19.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/nip24/melos_nip24.iml" filepath="$PROJECT_DIR$/packages/nip24/melos_nip24.iml" />
       <module fileurl="file://$PROJECT_DIR$/packages/nip47/melos_nip47.iml" filepath="$PROJECT_DIR$/packages/nip47/melos_nip47.iml" />
       <module fileurl="file://$PROJECT_DIR$/melos_dartstr.iml" filepath="$PROJECT_DIR$/melos_dartstr.iml" />
     </modules>

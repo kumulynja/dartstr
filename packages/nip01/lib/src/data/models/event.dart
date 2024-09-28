@@ -4,14 +4,13 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
-import 'package:nip01/src/enums/event_kind.dart';
 
 @immutable
 class Event extends Equatable {
   final String? _id;
   final String pubkey;
   final int createdAt;
-  final EventKind kind;
+  final int kind;
   final List<List<String>> tags;
   final String content;
   final String? sig;
@@ -31,7 +30,7 @@ class Event extends Equatable {
       id: map['id'],
       pubkey: map['pubkey'],
       createdAt: map['created_at'],
-      kind: EventKind.fromValue(map['kind']),
+      kind: map['kind'],
       tags: List<List<String>>.from(
         (map['tags'] as List)
             .map(
@@ -52,7 +51,7 @@ class Event extends Equatable {
     String? id,
     String? pubkey,
     int? createdAt,
-    EventKind? kind,
+    int? kind,
     List<List<String>>? tags,
     String? content,
     String? sig,
@@ -77,7 +76,7 @@ class Event extends Equatable {
       0,
       pubkey,
       createdAt,
-      kind.value,
+      kind,
       tags,
       content,
     ];
@@ -93,7 +92,7 @@ class Event extends Equatable {
       'id': id,
       'pubkey': pubkey,
       'created_at': createdAt,
-      'kind': kind.value,
+      'kind': kind,
       'tags': tags,
       'content': content,
       'sig': sig,

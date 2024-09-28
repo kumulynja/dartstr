@@ -14,7 +14,7 @@ void main() {
           pubkey:
               '981cc2078af05b62ee1f98cff325aac755bf5c5836a265c254447b5933c6223b',
           createdAt: 1672175320,
-          kind: EventKind.textNote,
+          kind: EventKind.textNote.value,
           tags: [],
           content: "Ceci est une analyse du websocket",
         ).id;

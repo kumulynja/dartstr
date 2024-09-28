@@ -1,21 +1,15 @@
-import 'package:nip01/src/constants.dart';
-
 enum EventKind {
-  userMetadata(Constants.userMetadataEventKind),
-  textNote(Constants.textNoteEventKind);
+  userMetadata(0),
+  textNote(1);
 
   final int value;
 
   const EventKind(this.value);
 
   factory EventKind.fromValue(int value) {
-    switch (value) {
-      case Constants.userMetadataEventKind:
-        return EventKind.userMetadata;
-      case Constants.textNoteEventKind:
-        return EventKind.textNote;
-      default:
-        throw ArgumentError('Invalid event kind value: $value');
-    }
+    return EventKind.values.firstWhere(
+      (kind) => kind.value == value,
+      orElse: () => throw ArgumentError('Invalid event kind value: $value'),
+    );
   }
 }

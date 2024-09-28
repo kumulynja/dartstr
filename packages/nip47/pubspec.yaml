@@ -8,8 +8,11 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  dartstr_utils: ^1.0.0
   nip01: ^1.0.0
+  nip04: ^1.0.0
   meta: ^1.15.0
+  equatable: ^2.0.5
   # path: ^1.8.0
 
 dev_dependencies:

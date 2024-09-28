@@ -1,16 +1,33 @@
+import 'package:nip01/nip01.dart';
 import 'package:nip47/nip47.dart';
+import 'package:nip47/src/enums/method.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('A group of tests', () {
-    final awesome = Awesome();
+  test(
+    'adds a connection',
+    () async {
+      const relayUrl = 'wss://nostr2.daedaluslabs.io';
+      final nostrKeyPair = KeyPair.generate();
+      final nwcWallet = Wallet(
+        relayUrl: relayUrl,
+        walletKeyPair: nostrKeyPair,
+      );
 
-    setUp(() {
-      // Additional setup goes here.
-    });
+      final connection = await nwcWallet.addConnection(
+        permittedMethods: [
+          Method.getInfo,
+          Method.getBalance,
+          Method.makeInvoice,
+          Method.lookupInvoice,
+        ],
+      );
 
-    test('First Test', () {
-      expect(awesome.isAwesome, isTrue);
-    });
-  });
+      expect(
+        connection.uri,
+        startsWith('nostr+walletconnect://${nostrKeyPair.publicKey}?secret='),
+      );
+      expect(connection.uri, endsWith('&relay=$relayUrl'));
+    },
+  );
 }

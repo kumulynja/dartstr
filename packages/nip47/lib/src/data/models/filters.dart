@@ -14,7 +14,7 @@ class Filters extends nip01.Filters {
     super.limit,
   });
 
-  factory Filters.nwcRequests({
+  factory Filters.requests({
     required String walletPublicKey,
     int? since,
   }) =>

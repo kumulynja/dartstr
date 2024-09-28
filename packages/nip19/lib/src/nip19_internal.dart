@@ -1,16 +1,16 @@
 import 'package:bech32/bech32.dart';
 import 'package:convert/convert.dart' as convert;
-import 'package:nip19/src/constants.dart';
+import 'package:nip19/src/enums/key_prefix.dart';
 
 class Nip19 {
   static String nsecFromHex(String hex) {
-    return _bech32Encode(hex, Constants.nsecPrefix);
+    return _bech32Encode(hex, KeyPrefix.nsec.value);
   }
 
   static String nsecToHex(String nsec) {
     final (hex, hrp) = _bech32Decode(nsec);
 
-    if (hrp != Constants.nsecPrefix) {
+    if (hrp != KeyPrefix.nsec.value) {
       throw ArgumentError('Invalid nsec prefix');
     }
 
@@ -18,13 +18,13 @@ class Nip19 {
   }
 
   static String npubFromHex(String hex) {
-    return _bech32Encode(hex, Constants.npubPrefix);
+    return _bech32Encode(hex, KeyPrefix.npub.value);
   }
 
   static String npubToHex(String npub) {
     final (hex, hrp) = _bech32Decode(npub);
 
-    if (hrp != Constants.npubPrefix) {
+    if (hrp != KeyPrefix.npub.value) {
       throw ArgumentError('Invalid npub prefix');
     }
 
