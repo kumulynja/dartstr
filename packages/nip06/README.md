@@ -1,39 +1,53 @@
-<!-- 
+<!--
 This README describes the package. If you publish this package to pub.dev,
 this README's contents appear on the landing page for your package.
 
 For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
+[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
 
 For general information about developing packages, see the Dart guide for
 [creating packages](https://dart.dev/guides/libraries/create-packages)
 and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
+[developing packages and plugins](https://flutter.dev/to/develop-packages).
 -->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+This package contains the basic key derivation from mnemonic seed phrase protocol flow for Nostr as described in the NIP-06.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+### Installation
+
+In your `pubspec.yaml` file add:
+
+```yaml
+dependencies:
+  nip06: ^1.0.0
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
 ```dart
-const like = 'sample';
+import 'package:nip06/nip06.dart';
+
+final keyPairFromMnemonic = KeyPair.fromMnemonic(
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'abandon '
+'about',
+);
+print('Private key: ${keyPairFromMnemonic.privateKey}');
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+This package is part of the Dartstr monorepo, which contains a set of modular and compatible Dart packages of different Nostr NIPS and utilities. Import just the packages of NIPS you need and keep your project lightweight. See the [Dartstr monorepo](https://github.com/kumulynja/dartstr) for all available packages.
