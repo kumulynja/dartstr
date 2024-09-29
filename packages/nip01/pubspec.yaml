@@ -1,7 +1,7 @@
 name: nip01
 description: This package contains the basic protocol flows for Nostr as described in the NIP-01.
 version: 0.0.1
-repository: https://github.com/kumulynja/dartstr/nip01
+repository: https://github.com/kumulynja/dartstr/tree/main/packages/nip01
 
 environment:
   sdk: ^3.5.0

@@ -1,7 +1,7 @@
 name: nip06
 description: This package contains the basic key derivation from mnemonic seed phrase protocol flow for Nostr as described in the NIP-06.
 version: 0.0.1
-repository: https://github.com/kumulynja/dartstr/nip06
+repository: https://github.com/kumulynja/dartstr/tree/main/packages/nip06
 
 environment:
   sdk: ^3.5.0

@@ -1,7 +1,7 @@
 name: nip47
 description: This package implements the Nostr Wallet Connect protocol as described in the NIP-47.
 version: 0.0.1
-repository: https://github.com/kumulynja/dartstr/nip47
+repository: https://github.com/kumulynja/dartstr/tree/main/packages/nip47
 
 environment:
   sdk: ^3.5.0

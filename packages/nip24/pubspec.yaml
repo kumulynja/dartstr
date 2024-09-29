@@ -1,7 +1,7 @@
 name: nip24
 description: This package contains the extra metadata fields that can be added to a Nostr kind 0 event as described in the NIP-24.
 version: 0.0.1
-repository: https://github.com/kumulynja/dartstr/nip24
+repository: https://github.com/kumulynja/dartstr/tree/main/packages/nip24
 
 environment:
   sdk: ^3.5.1
