@@ -10,7 +10,7 @@ environment:
 dependencies:
   dartstr_utils: ^0.0.1
   nip01: ^0.0.2
-  nip04: ^0.0.1
+  nip04: ^0.0.2
   meta: ^1.15.0
   equatable: ^2.0.5
   # path: ^1.8.0

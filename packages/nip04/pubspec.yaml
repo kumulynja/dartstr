@@ -1,6 +1,6 @@
 name: nip04
 description: This package contains the encrypted direct message protocol flow for Nostr as described in the NIP-04.
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/kumulynja/dartstr/tree/main/packages/nip04
 
 environment:
