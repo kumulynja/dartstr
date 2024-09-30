@@ -1,6 +1,6 @@
 name: dartstr_utils
 description: A library that is part of the dartstr mono-repo to offer some common utilities needed by different Nostr NIPs.
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/kumulynja/dartstr/tree/main/packages/dartstr_utils
 
 environment:

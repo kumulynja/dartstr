@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`dartstr_utils` - `v0.0.2`](#dartstr_utils---v002)
+
+---
+
+#### `dartstr_utils` - `v0.0.2`
+
+ - Bump "dartstr_utils" to `0.0.2`.
+
+
+## 2024-09-30
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`nip47` - `v0.0.2`](#nip47---v002)
 
 ---
