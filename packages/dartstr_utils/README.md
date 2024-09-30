@@ -23,7 +23,7 @@ In your `pubspec.yaml` file add:
 
 ```yaml
 dependencies:
-  dartstr_utils: ^0.0.1
+  dartstr_utils: ^0.0.2
 ```
 
 ## Usage
