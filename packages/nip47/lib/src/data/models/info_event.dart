@@ -17,7 +17,7 @@ class InfoEvent extends Equatable {
     required String connectionPubkey,
     required String relayUrl,
   }) {
-    final partialNostrEvent = nip01.Event(
+    final partialEvent = nip01.Event(
       pubkey: creatorKeyPair.publicKey,
       createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       kind: EventKind.info.value,
@@ -38,11 +38,7 @@ class InfoEvent extends Equatable {
           ), // NIP-47 spec: The content should be a plaintext string with the supported commands, space-separated.
     );
 
-    final id = partialNostrEvent.id;
-    final signedNostrEvent = partialNostrEvent.copyWith(
-      id: id,
-      sig: creatorKeyPair.sign(id),
-    );
+    final signedNostrEvent = partialEvent.sign(creatorKeyPair);
 
     return signedNostrEvent;
   }

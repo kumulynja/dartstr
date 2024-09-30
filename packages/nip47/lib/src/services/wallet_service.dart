@@ -89,6 +89,7 @@ class WalletServiceImpl implements WalletService {
 
     // Push permitted methods to relay with get info event
     final info = InfoEvent(permittedMethods: permittedMethods);
+
     final signedEvent = info.toSignedEvent(
       creatorKeyPair: _walletKeyPair,
       connectionPubkey: connectionKeyPair.publicKey,

@@ -132,11 +132,7 @@ abstract class Response extends Equatable {
       content: encryptedContent,
     );
 
-    final eventId = partialEvent.id;
-    final signedEvent = partialEvent.copyWith(
-      id: eventId,
-      sig: creatorKeyPair.sign(eventId),
-    );
+    final signedEvent = partialEvent.sign(creatorKeyPair);
 
     return signedEvent;
   }
