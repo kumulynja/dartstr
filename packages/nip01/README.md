@@ -52,11 +52,7 @@ final partialEvent = Event(
     content: "This is an event.",
 );
 
-final eventId = partialEvent.id;
-final signedEvent = partialEvent.copyWith(
-    id: eventId,
-    sig: creatorKeyPair.sign(eventId),
-);
+final signedEvent = partialEvent.sign(creatorKeyPair);
 
 final isPublished = await relayCommunication.publishEvent(signedEvent);
 if (!isPublished) {

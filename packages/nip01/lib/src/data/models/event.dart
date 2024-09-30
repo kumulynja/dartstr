@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
+import 'package:nip01/src/data/models/key_pair.dart';
 
 @immutable
 class Event extends Equatable {
@@ -97,6 +98,16 @@ class Event extends Equatable {
       'content': content,
       'sig': sig,
     };
+  }
+
+  Event sign(KeyPair keyPair) {
+    if (keyPair.publicKey != pubkey) {
+      throw ArgumentError('Invalid keypair to sign event with pubkey: $pubkey');
+    }
+
+    final signature = keyPair.sign(id);
+
+    return copyWith(sig: signature);
   }
 
   @override
