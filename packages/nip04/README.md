@@ -13,7 +13,7 @@ and the Flutter guide for
 
 ## Features
 
-This package contains the encrypted direct message protocol flow for Nostr as described in the NIP-04. This includes the encryption and decryption of messages between two parties using their key pairs.
+This package contains the encrypted direct message for Nostr as described in the NIP-04. This includes the encryption and decryption of messages between two parties using their key pairs.
 
 ## Getting started
 

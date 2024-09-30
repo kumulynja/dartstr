@@ -13,7 +13,7 @@ and the Flutter guide for
 
 ## Features
 
-This package contains the basic key derivation from mnemonic seed phrase protocol flow for Nostr as described in the NIP-06.
+This package contains the basic key derivation from mnemonic seed phrases for Nostr as described in the NIP-06.
 
 ## Getting started
 
