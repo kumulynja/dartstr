@@ -15,7 +15,7 @@ abstract class RelayStreamProvider {
 }
 
 class RelayStreamProviderImpl implements RelayStreamProvider {
-  final String relayUrl;
+  final String _relayUrl;
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   bool _isConnected = false;
@@ -23,7 +23,7 @@ class RelayStreamProviderImpl implements RelayStreamProvider {
       StreamController.broadcast();
 
   RelayStreamProviderImpl(
-    this.relayUrl,
+    this._relayUrl,
   );
 
   @override
@@ -36,24 +36,24 @@ class RelayStreamProviderImpl implements RelayStreamProvider {
         disconnect();
       }
 
-      log('Attempting to connect to relay: $relayUrl');
+      log('Attempting to connect to relay: $_relayUrl');
 
-      _channel = WebSocketChannel.connect(Uri.parse(relayUrl));
+      _channel = WebSocketChannel.connect(Uri.parse(_relayUrl));
       await _channel!.ready;
 
       _subscription = _channel?.stream.listen(
         (data) {
           final message = RelayMessage.fromSerialized(data);
-          log('Received message from relay $relayUrl: $message');
+          log('Received message from relay $_relayUrl: $message');
           _messageController.add(message);
         },
         onError: (error) {
-          log('Websocked error on relay $relayUrl: $error');
+          log('Websocket error on relay $_relayUrl: $error');
           _messageController.addError(error);
           _isConnected = false;
         },
         onDone: () {
-          log('Websocket done on relay $relayUrl');
+          log('Websocket done on relay $_relayUrl');
           _messageController.addError('Connection lost');
           _isConnected = false;
         },
@@ -61,7 +61,7 @@ class RelayStreamProviderImpl implements RelayStreamProvider {
       );
 
       _isConnected = true;
-      log('Successfully connected to relay: $relayUrl');
+      log('Successfully connected to relay: $_relayUrl');
     } catch (e) {
       log('Error connecting to relay: $e');
       _isConnected = false;

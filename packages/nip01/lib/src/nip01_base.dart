@@ -4,10 +4,13 @@ import 'dart:developer';
 import 'package:nip01/src/data/models/client_message.dart';
 import 'package:nip01/src/data/models/event.dart';
 import 'package:nip01/src/data/models/filters.dart';
+import 'package:nip01/src/data/models/relay_client_event_subscription.dart';
 import 'package:nip01/src/data/models/relay_message.dart';
 import 'package:nip01/src/data/providers/relay_stream_provider.dart';
 
 abstract class RelayClient {
+  String get relayUrl;
+  bool get isConnected;
   Future<void> connect();
   Stream<Event> requestEvents(String subscriptionId, List<Filters> filters);
   Future<List<Event>> requestStoredEvents(
@@ -15,7 +18,7 @@ abstract class RelayClient {
     List<Filters> filters,
   );
   Future<bool> publishEvent(Event event);
-  Future<RelayClientEventSubscriptionCacheItem?> closeSubscription(
+  Future<RelayClientEventSubscription?> closeSubscription(
     String subscriptionId, {
     bool waitForRelayClosedMessage,
   });
@@ -23,96 +26,57 @@ abstract class RelayClient {
   Future<void> dispose();
 }
 
-class RelayClientEventSubscriptionCacheItem {
-  final String subscriptionId;
-  final List<Filters> filters;
-  final Function(List<Event>)? onEose;
-  final List<Event> _storedEvents = [];
-  // Completer for end of stored events message from relay
-  final Completer _eose = Completer();
-  // Completer for close message from relay
-  final Completer<void> _closed = Completer<void>();
-  final StreamController<Event> _eventController = StreamController.broadcast();
-
-  RelayClientEventSubscriptionCacheItem({
-    required this.subscriptionId,
-    required this.filters,
-    this.onEose,
-  });
-
-  Stream<Event> get events => _eventController.stream;
-  List<Event> get storedEvents => _storedEvents;
-
-  void addEvent(Event event) {
-    if (!_eose.isCompleted) {
-      _storedEvents.add(event);
-    }
-    _eventController.add(event);
-  }
-
-  void endOfStoredEvents() {
-    _eose.complete();
-    onEose?.call(_storedEvents);
-  }
-
-  // Wait for the close message from the relay
-  Future<void> waitForClose() async {
-    return _closed.future;
-  }
-
-  // Mark the subscription as closed by the relay
-  void markClosed() {
-    _closed.complete();
-  }
-
-  void dispose() {
-    _eventController.close();
-  }
-}
-
 class RelayClientImpl implements RelayClient {
-  final RelayStreamProviderImpl _relayStreamProvider;
+  final String _relayUrl;
+  final RelayStreamProvider _relayStreamProvider;
   StreamSubscription? _relayStreamSubscription;
   bool _isConnected = false;
   int _retryAttempts = 0;
   final int _maxRetryAttempts;
-  final Map<String, RelayClientEventSubscriptionCacheItem>
-      _eventSubscriptionsCache = {};
+  final Map<String, RelayClientEventSubscription> _eventSubscriptionsCache = {};
   final Map<String, Completer<bool>> _publishingEvents = {};
 
   RelayClientImpl(
-    this._relayStreamProvider, {
+    this._relayUrl, {
+    RelayStreamProvider? relayStreamProvider,
     int maxRetryAttempts = 5,
-  }) : _maxRetryAttempts = maxRetryAttempts;
+  })  : _relayStreamProvider = relayStreamProvider ??
+            RelayStreamProviderImpl(
+              _relayUrl,
+            ),
+        _maxRetryAttempts = maxRetryAttempts;
 
-  String get relayUrl => _relayStreamProvider.relayUrl;
+  @override
+  String get relayUrl => _relayUrl;
+
+  @override
   bool get isConnected => _isConnected;
 
   @override
   Future<void> connect() async {
     try {
-      log('Initializing relay client for relay $relayUrl');
+      log('Initializing relay client for relay $_relayUrl');
 
       await _relayStreamProvider.connect();
       _relayStreamSubscription = _relayStreamProvider.messages.listen(
         (message) {
-          log('Received message from relay $relayUrl: $message');
+          log('Received message from relay $_relayUrl: $message');
           _handleRelayMessage(message);
         },
         onError: (error) {
-          log('Stream error on relay $relayUrl: $error');
+          log('Stream error on relay $_relayUrl: $error');
           _reconnect();
         },
         onDone: () {
-          log('Stream done on relay $relayUrl');
+          log('Stream done on relay $_relayUrl');
           _reconnect();
         },
         cancelOnError: true,
       );
 
-      log('Relay client successfully initialized for relay $relayUrl');
+      log('Relay client successfully initialized for relay $_relayUrl');
     } catch (e) {
-      log('Error initializing relay client for relay $relayUrl: $e');
+      log('Error initializing relay client for relay $_relayUrl: $e');
       rethrow;
     }
   }
@@ -156,8 +120,7 @@ class RelayClientImpl implements RelayClient {
   }) {
     try {
       // Keep track of the subscription
-      _eventSubscriptionsCache[subscriptionId] =
-          RelayClientEventSubscriptionCacheItem(
+      _eventSubscriptionsCache[subscriptionId] = RelayClientEventSubscription(
         subscriptionId: subscriptionId,
         filters: filters,
         onEose: onEose,
@@ -185,8 +148,7 @@ class RelayClientImpl implements RelayClient {
     List<Filters> filters,
   ) async {
     // Keep track of the subscription
-    _eventSubscriptionsCache[subscriptionId] =
-        RelayClientEventSubscriptionCacheItem(
+    _eventSubscriptionsCache[subscriptionId] = RelayClientEventSubscription(
       subscriptionId: subscriptionId,
       filters: filters,
     );
@@ -199,7 +161,7 @@ class RelayClientImpl implements RelayClient {
     _relayStreamProvider.sendMessage(message);
 
     // Wait for the end of stored events
-    await _eventSubscriptionsCache[subscriptionId]!._eose.future;
+    await _eventSubscriptionsCache[subscriptionId]!.waitForEose();
 
     // Unsubscribe from the relay
     final closedSubscription = await closeSubscription(subscriptionId);
@@ -208,7 +170,7 @@ class RelayClientImpl implements RelayClient {
   }
 
   @override
-  Future<RelayClientEventSubscriptionCacheItem?> closeSubscription(
+  Future<RelayClientEventSubscription?> closeSubscription(
     String subscriptionId, {
     bool waitForRelayClosedMessage = false,
     int timeoutSec = 10,
@@ -264,7 +226,7 @@ class RelayClientImpl implements RelayClient {
 
       if (_retryAttempts < _maxRetryAttempts) {
         final timeout = Duration(seconds: 2 * _retryAttempts);
-        log('Reconnecting to relay $relayUrl in $timeout seconds');
+        log('Reconnecting to relay $_relayUrl in $timeout seconds');
         await Future.delayed(timeout);
 
         // Reconnect
@@ -276,10 +238,10 @@ class RelayClientImpl implements RelayClient {
         // Re-subscribe to all subscriptions
         _resubscribe();
       } else {
-        log('Max retry attempts reached for relay $relayUrl');
+        log('Max retry attempts reached for relay $_relayUrl');
       }
     } catch (e) {
-      log('Error reconnecting to relay $relayUrl: $e');
+      log('Error reconnecting to relay $_relayUrl: $e');
       _reconnect();
     }
   }
