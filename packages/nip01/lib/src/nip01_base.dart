@@ -1,305 +1,183 @@
-import 'dart:async';
 import 'dart:developer';
 
-import 'package:nip01/src/data/models/client_message.dart';
-import 'package:nip01/src/data/models/event.dart';
-import 'package:nip01/src/data/models/filters.dart';
-import 'package:nip01/src/data/models/relay_client_event_subscription.dart';
-import 'package:nip01/src/data/models/relay_message.dart';
-import 'package:nip01/src/data/providers/relay_stream_provider.dart';
+import 'package:async/async.dart';
+import 'package:nip01/nip01.dart';
+import 'package:nip01/src/data/clients/relay_clients_manager.dart';
 
-abstract class RelayClient {
-  String get relayUrl;
-  bool get isConnected;
-  Future<void> connect();
-  Stream<Event> requestEvents(String subscriptionId, List<Filters> filters);
-  Future<List<Event>> requestStoredEvents(
-    String subscriptionId,
-    List<Filters> filters,
-  );
-  Future<bool> publishEvent(Event event);
-  Future<RelayClientEventSubscription?> closeSubscription(
-    String subscriptionId, {
-    bool waitForRelayClosedMessage,
+abstract class Nip01Repository {
+  List<String> get relayUrls;
+  Future<bool> publishEvent(
+    Event event, {
+    int successTreshold = 1,
+    List<String>? relayUrls,
   });
-  Future<void> disconnect();
-  Future<void> dispose();
+  Future<List<Event>> getStoredEvents(
+    List<Filters> filters, {
+    List<String>? relayUrls,
+  });
+  Future<Stream<Event>> subscribeToEvents(
+    String subscriptionId,
+    List<Filters> filters, {
+    List<String>? relayUrls,
+  });
+  Future<void> unsubscribeFromEvents(
+    String subscriptionId, {
+    List<String>? relayUrls,
+  });
+  Future<void> setUserMetadata({
+    required KeyPair userKeyPair,
+    required Kind0Metadata metadata,
+  });
+  Future<Kind0Metadata> getUserMetadata(
+    String userPubkey, {
+    List<String>? relayUrls,
+  });
+  Future<void> disposeRelayClient(String relayUrl);
+  Future<void> disposeAllRelayClients();
 }
 
-class RelayClientImpl implements RelayClient {
-  final String _relayUrl;
-  final RelayStreamProvider _relayStreamProvider;
-  StreamSubscription? _relayStreamSubscription;
-  bool _isConnected = false;
-  int _retryAttempts = 0;
-  final int _maxRetryAttempts;
-  final Map<String, RelayClientEventSubscription> _eventSubscriptionsCache = {};
-  final Map<String, Completer<bool>> _publishingEvents = {};
+class Nip01RepositoryImpl implements Nip01Repository {
+  Nip01RepositoryImpl({
+    RelayClientsManager? relayClientsManager,
+  }) : _relayClientsManager = relayClientsManager ??
+            RelayClientsManagerImpl(
+              [
+                'wss://relay.paywithflash.com',
+                'wss://relay.primal.net',
+                'wss://relay.snort.social',
+                'wss://relay.damus.io',
+                'wss://relay.nostr.band',
+              ],
+            );
 
-  RelayClientImpl(
-    this._relayUrl, {
-    RelayStreamProvider? relayStreamProvider,
-    int maxRetryAttempts = 5,
-  })  : _relayStreamProvider = relayStreamProvider ??
-            RelayStreamProviderImpl(
-              _relayUrl,
-            ),
-        _maxRetryAttempts = maxRetryAttempts;
+  final RelayClientsManager _relayClientsManager;
 
   @override
-  String get relayUrl => _relayUrl;
-
-  @override
-  bool get isConnected => _isConnected;
-
-  @override
-  Future<void> connect() async {
-    try {
-      log('Initializing relay client for relay $_relayUrl');
-
-      await _relayStreamProvider.connect();
-      _relayStreamSubscription = _relayStreamProvider.messages.listen(
-        (message) {
-          log('Received message from relay $_relayUrl: $message');
-          _handleRelayMessage(message);
-        },
-        onError: (error) {
-          log('Stream error on relay $_relayUrl: $error');
-          _reconnect();
-        },
-        onDone: () {
-          log('Stream done on relay $_relayUrl');
-          _reconnect();
-        },
-        cancelOnError: true,
-      );
-
-      log('Relay client successfully initialized for relay $_relayUrl');
-    } catch (e) {
-      log('Error initializing relay client for relay $_relayUrl: $e');
-      rethrow;
-    }
-  }
+  List<String> get relayUrls => _relayClientsManager.relayUrls;
 
   @override
   Future<bool> publishEvent(
     Event event, {
-    int timeoutSec = 5,
+    int successTreshold = 1,
+    List<String>? relayUrls,
   }) async {
-    try {
-      final completer = Completer<bool>();
-      final message = ClientEventMessage(event: event);
+    final relayApiClients = _relayClientsManager.getClients(
+      onlyRelayUrls: relayUrls,
+    );
 
-      _publishingEvents[event.id] = completer; // Store completer with event ID
+    final results = await Future.wait(
+        relayApiClients.map((client) => client.publishEvent(event)));
 
-      _relayStreamProvider.sendMessage(message);
-
-      final isPublishedSuccessfully = await completer.future.timeout(
-        Duration(seconds: timeoutSec),
-        onTimeout: () {
-          log('Publish event timeout: ${event.id}');
-          return false; // Return false on timeout
-        },
-      );
-
-      return isPublishedSuccessfully;
-    } catch (e) {
-      log('Error publishing event: $e');
-      return false;
-    } finally {
-      // Remove the completer from the map
-      _publishingEvents.remove(event.id);
-    }
+    // Todo: Maybe change this to return the relays that succeeded.
+    final successCount = results.where((result) => result == true).length;
+    return successCount >= successTreshold;
   }
 
   @override
-  Stream<Event> requestEvents(
+  Future<List<Event>> getStoredEvents(
+    List<Filters> filters, {
+    List<String>? relayUrls,
+  }) async {
+    final relayApiClients = _relayClientsManager.getClients(
+      onlyRelayUrls: relayUrls,
+    );
+
+    final results = await Future.wait(
+        relayApiClients.map((client) => client.requestStoredEvents(filters)));
+
+    // Use a Set to automatically filter out duplicate events
+    final Set<Event> events = {};
+    for (final result in results) {
+      events.addAll(result);
+    }
+
+    return events.toList();
+  }
+
+  @override
+  Future<Stream<Event>> subscribeToEvents(
     String subscriptionId,
     List<Filters> filters, {
-    void Function(List<Event>)? onEose,
-  }) {
-    try {
-      // Keep track of the subscription
-      _eventSubscriptionsCache[subscriptionId] = RelayClientEventSubscription(
-        subscriptionId: subscriptionId,
-        filters: filters,
-        onEose: onEose,
-      );
-
-      // Send the subscription request to the relay
-      final message = ClientRequestMessage(
-        subscriptionId: subscriptionId,
-        filters: filters,
-      );
-      _relayStreamProvider.sendMessage(message);
-
-      // Return the stream of events
-      return _eventSubscriptionsCache[subscriptionId]!.events;
-    } catch (e) {
-      log('Error requesting events: $e');
-      _eventSubscriptionsCache.remove(subscriptionId);
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<Event>> requestStoredEvents(
-    String subscriptionId,
-    List<Filters> filters,
-  ) async {
-    // Keep track of the subscription
-    _eventSubscriptionsCache[subscriptionId] = RelayClientEventSubscription(
-      subscriptionId: subscriptionId,
-      filters: filters,
-    );
-
-    // Send the subscription request to the relay
-    final message = ClientRequestMessage(
-      subscriptionId: subscriptionId,
-      filters: filters,
-    );
-    _relayStreamProvider.sendMessage(message);
-
-    // Wait for the end of stored events
-    await _eventSubscriptionsCache[subscriptionId]!.waitForEose();
-
-    // Unsubscribe from the relay
-    final closedSubscription = await closeSubscription(subscriptionId);
-
-    return closedSubscription!.storedEvents;
-  }
-
-  @override
-  Future<RelayClientEventSubscription?> closeSubscription(
-    String subscriptionId, {
-    bool waitForRelayClosedMessage = false,
-    int timeoutSec = 10,
+    List<String>? relayUrls,
   }) async {
-    if (!_eventSubscriptionsCache.containsKey(subscriptionId)) {
-      log('No subscription found for ID: $subscriptionId');
-      return null;
-    }
-
-    final message = ClientCloseMessage(subscriptionId: subscriptionId);
-
-    _relayStreamProvider.sendMessage(message);
-
-    if (waitForRelayClosedMessage) {
-      await _eventSubscriptionsCache[subscriptionId]!
-          .waitForClose()
-          .timeout(Duration(seconds: 10), onTimeout: () {
-        log('Timeout waiting for close message from relay.');
-      });
-    }
-
-    // Dispose and remove the subscription from the cache
-    _eventSubscriptionsCache[subscriptionId]!.dispose();
-    final subscription =
-        _eventSubscriptionsCache.remove(message.subscriptionId);
-
-    return subscription;
-  }
-
-  @override
-  Future<void> disconnect() async {
-    await _relayStreamSubscription?.cancel();
-    _relayStreamSubscription = null;
-    await _relayStreamProvider.disconnect();
-  }
-
-  @override
-  Future<void> dispose() async {
-    await Future.wait(
-      _eventSubscriptionsCache.keys.map((subscriptionId) {
-        return closeSubscription(subscriptionId);
-      }),
+    final relayApiClients = _relayClientsManager.getClients(
+      onlyRelayUrls: relayUrls,
     );
-    await disconnect();
-    await _relayStreamProvider.dispose();
+
+    final results = await Future.wait(relayApiClients
+        .map((client) => client.requestEvents(subscriptionId, filters)));
+
+    // Group all streams into one
+    return StreamGroup.merge<Event>(results);
   }
 
-  void _reconnect() async {
+  @override
+  Future<void> unsubscribeFromEvents(
+    String subscriptionId, {
+    List<String>? relayUrls,
+  }) async {
+    final relayApiClients = _relayClientsManager.getClients(
+      onlyRelayUrls: relayUrls,
+    );
+
+    await Future.wait(relayApiClients
+        .map((client) => client.closeSubscription(subscriptionId)));
+  }
+
+  @override
+  Future<void> setUserMetadata({
+    required KeyPair userKeyPair,
+    required Kind0Metadata metadata,
+  }) async {
     try {
-      // Clean up before reconnecting
-      disconnect();
-      _isConnected = false;
+      final event = Event(
+        pubkey: userKeyPair.publicKey,
+        createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        kind: 0,
+        content: metadata.content,
+      ).sign(userKeyPair);
 
-      if (_retryAttempts < _maxRetryAttempts) {
-        final timeout = Duration(seconds: 2 * _retryAttempts);
-        log('Reconnecting to relay $_relayUrl in $timeout seconds');
-        await Future.delayed(timeout);
-
-        // Reconnect
-        _retryAttempts++;
-        await connect();
-        _isConnected = true;
-        _retryAttempts = 0;
-
-        // Re-subscribe to all subscriptions
-        _resubscribe();
-      } else {
-        log('Max retry attempts reached for relay $_relayUrl');
+      final success = await publishEvent(event);
+      if (!success) {
+        throw Exception('Failed to publish user metadata');
       }
     } catch (e) {
-      log('Error reconnecting to relay $_relayUrl: $e');
-      _reconnect();
+      log('Error setting user metadata: $e');
+      rethrow; // Todo: Add error handling
     }
   }
 
-  void _resubscribe() {
-    _eventSubscriptionsCache.forEach((subscriptionId, subscription) {
-      final message = ClientRequestMessage(
-        subscriptionId: subscriptionId,
-        filters: subscription.filters,
-      );
-      _relayStreamProvider.sendMessage(message);
-    });
+  @override
+  Future<Kind0Metadata> getUserMetadata(
+    String userPubkey, {
+    List<String>? relayUrls,
+  }) async {
+    try {
+      final filter = Filters(authors: [userPubkey], kinds: const [0]);
+
+      final events = await getStoredEvents([filter], relayUrls: relayUrls);
+
+      if (events.isEmpty) {
+        throw Exception('No user metadata found');
+      }
+
+      final latestEvent = events.reduce(
+          (a, b) => a.createdAt > b.createdAt ? a : b); // Get the latest event
+
+      return Kind0Metadata.fromContent(latestEvent.content);
+    } catch (e) {
+      log('Error getting user metadata: $e');
+      rethrow; // Todo: Add error handling
+    }
   }
 
-  void _handleRelayMessage(RelayMessage message) {
-    if (message is RelayEventMessage) {
-      // Handle event message
-      log('Received event: ${message.event.content}');
+  @override
+  Future<void> disposeRelayClient(String relayUrl) async {
+    await _relayClientsManager.disposeClient(relayUrl);
+  }
 
-      // Get the subscription for the event
-      final subscription = _eventSubscriptionsCache[message.subscriptionId];
-      if (subscription != null) {
-        // Add the event to the subscription stream
-        subscription.addEvent(message.event);
-      }
-    } else if (message is RelayNoticeMessage) {
-      // Handle notice message
-      log('Received notice: ${message.message}');
-    } else if (message is RelayEndOfStreamMessage) {
-      // Handle end of stream message
-      log(
-        'End of stored events for subscription: ${message.subscriptionId}',
-      );
-
-      // Get the subscription for the event
-      final subscription = _eventSubscriptionsCache[message.subscriptionId];
-      if (subscription != null) {
-        subscription.endOfStoredEvents();
-      }
-    } else if (message is RelayClosedMessage) {
-      log(
-        'Subscription closed by relay: ${message.subscriptionId} with message: ${message.message}',
-      );
-
-      final subscription = _eventSubscriptionsCache[message.subscriptionId];
-      if (subscription != null) {
-        subscription.markClosed();
-      }
-    } else if (message is RelayOkMessage) {
-      log(
-        'OK message: Event ${message.eventId} accepted: ${message.accepted}, message: ${message.message}',
-      );
-
-      // Handle OK message by completing the completer
-      final completer = _publishingEvents[message.eventId];
-      if (completer != null) {
-        completer.complete(message.accepted);
-      }
-    }
+  @override
+  Future<void> disposeAllRelayClients() async {
+    await _relayClientsManager.disposeAll();
   }
 }

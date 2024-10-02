@@ -7,6 +7,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
 abstract class RelayStreamProvider {
+  String get relayUrl;
   Stream<RelayMessage> get messages;
   Future<void> connect();
   void sendMessage(ClientMessage message);
@@ -23,8 +24,11 @@ class RelayStreamProviderImpl implements RelayStreamProvider {
       StreamController.broadcast();
 
   RelayStreamProviderImpl(
-    this._relayUrl,
-  );
+    relayUrl,
+  ) : _relayUrl = relayUrl;
+
+  @override
+  String get relayUrl => _relayUrl;
 
   @override
   Stream<RelayMessage> get messages => _messageController.stream;
