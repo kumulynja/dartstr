@@ -186,6 +186,8 @@ class RelayClientImpl implements RelayClient {
     await _relayStreamSubscription?.cancel();
     _relayStreamSubscription = null;
     await _relayStreamProvider.disconnect();
+    // Set connected to false
+    _isConnected = false;
   }
 
   @override
@@ -230,6 +232,7 @@ class RelayClientImpl implements RelayClient {
       _resubscribe();
 
       log('Relay client successfully initialized for relay $_relayUrl');
+      _isConnected = true;
     } catch (e) {
       log('Error initializing relay client for relay $_relayUrl: $e');
       rethrow;
@@ -240,17 +243,16 @@ class RelayClientImpl implements RelayClient {
     try {
       // Clean up before reconnecting
       disconnect();
-      _isConnected = false;
 
       if (_retryAttempts < _maxRetryAttempts) {
+        _retryAttempts++;
         final timeout = Duration(seconds: 2 * _retryAttempts);
-        log('Reconnecting to relay $_relayUrl in $timeout seconds');
+        log('Reconnecting to relay $_relayUrl in $timeout seconds for attempt $_retryAttempts');
         await Future.delayed(timeout);
 
         // Reconnect
-        _retryAttempts++;
         await _connect();
-        _isConnected = true;
+        log('Reconnected successfully to relay $_relayUrl after $_retryAttempts attempts');
         _retryAttempts = 0;
       } else {
         log('Max retry attempts reached for relay $_relayUrl');

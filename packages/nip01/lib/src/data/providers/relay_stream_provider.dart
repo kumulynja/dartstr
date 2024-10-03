@@ -88,7 +88,7 @@ class RelayStreamProviderImpl implements RelayStreamProvider {
   Future<void> disconnect() async {
     await _subscription?.cancel();
     _subscription = null;
-    await _channel?.sink.close(status.goingAway);
+    await _channel?.sink.close(status.normalClosure);
     _channel = null;
   }
 
