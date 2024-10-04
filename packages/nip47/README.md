@@ -56,7 +56,7 @@ In your `pubspec.yaml` file add:
 
 ```yaml
 dependencies:
-  nip47: ^0.0.2
+  nip47: ^0.1.0
 ```
 
 ## Usage
