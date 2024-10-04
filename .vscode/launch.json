@@ -1,0 +1,55 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "dartstr",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "dartstr_utils",
+            "cwd": "packages/dartstr_utils",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "nip01",
+            "cwd": "packages/nip01",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "nip04",
+            "cwd": "packages/nip04",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "nip06",
+            "cwd": "packages/nip06",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "nip19",
+            "cwd": "packages/nip19",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "nip24",
+            "cwd": "packages/nip24",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "nip47",
+            "cwd": "packages/nip47",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}

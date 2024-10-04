@@ -23,7 +23,7 @@ In your `pubspec.yaml` file add:
 
 ```yaml
 dependencies:
-  nip01: ^0.0.2
+  nip01: ^0.1.0
 ```
 
 ## Usage
@@ -35,48 +35,43 @@ import 'package:dartstr_utils/dartstr_utils.dart';
 final keyPair = KeyPair.generate();
 print('privateKey: ${keyPair.privateKey}');
 
-final relayCommunication = RelayCommunicationImpl(
-    RelayConnectionProviderImpl(
-        'wss://relay01.nostr.org',
-    ),
+final nip01Repository = Nip01RepositoryImpl(
+    relayClientsManager: RelayClientsManagerImpl(['wss://example.relay.org']),
 );
 
-relayCommunication.init();
-
 final partialEvent = Event(
-    pubkey:
-        '981cc2078af05b62ee1f98cff325aac755bf5c5836a265c254447b5933c6223b',
+    pubkey: '981cc2078af05b62ee1f98cff325aac755bf5c5836a265c254447b5933c6223b',
     createdAt: 1672175320,
     kind: EventKind.textNote.value,
     tags: [],
     content: "This is an event.",
 );
 
-final signedEvent = partialEvent.sign(creatorKeyPair);
+final signedEvent = partialEvent.sign(keyPair);
 
-final isPublished = await relayCommunication.publishEvent(signedEvent);
+final isPublished = await nip01Repository.publishEvent(signedEvent);
 if (!isPublished) {
     throw Exception('Failed to publish event');
 }
 
-// Listen to events
-final eventsSubscription = relayCommunication.events.listen(
-    (event) {
-        // Handle event
-    },
-);
-
 // Subscribe to events on the relay
-final String subscriptionId = SecretGenerator.secretHex(64); // SecretGenerator is part of the dartstr_utils package
-relayCommunication.requestEvents(
+final String subscriptionId = SecretGenerator.secretHex(
+    64,
+); // SecretGenerator is part of the dartstr_utils package
+
+final eventsStream = await nip01Repository.subscribeToEvents(
     subscriptionId,
     [
-        Filters(
-            authors: keyPair.publicKey,
-            since: 1672175320,
-        )
+      Filters(
+        authors: [keyPair.publicKey],
+        since: 1672175320,
+      ),
     ],
 );
+
+eventsStream.listen((event) {
+    print('Received event: $event');
+});
 ```
 
 ## Additional information

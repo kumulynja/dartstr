@@ -40,9 +40,9 @@ Since you are building a wallet, you certainly already have your own secure stor
 
 Together with the connection data like the name and permitted methods, you should also save spending limits (budgets) and an expiry date for every connection. You could also let the user configure auto- or manual approval for payment requests. It is your responsability as a wallet builder to validate those settings when handling a request from the stream. The expiry date should be checked when handling any NWC requests and the budget and other limits before making a payment. If the expiry date or any budget limits are reached, you should use the `failedToHandleRequest` function and pass the appropriate error code. In case a connection is expired, also remove the connection with `removeConnection` so no further requests will be put on the stream for this connection anymore.
 
-- It does not store the requests, they are only available in real-time through the stream
+- It does not store the requests, they are only available in real-time through the stream or by getting stored events from the relay
 
-You should handle the requests in real-time and respond to them as soon as possible. If you can not handle a request, you should use the `failedToHandleRequest` method to inform the website or app that the request could not be handled. You could store the requests yourself if you want, but this is not required. If you want to process any missed events that were send while the app was not running, you should at least store the timestamp of the last event and pass it to the `Wallet` constructor when restarting the app.
+You should handle the requests in real-time and respond to them as soon as possible. If you can not handle a request, you should use the `failedToHandleRequest` method to inform the website or app that the request could not be handled. You could store the requests yourself if you want, but this is not required. If you want to process any missed events that were send while the app was not running, you can get events since a certain timestamp from the relay.
 
 - This package is not a Lightning wallet itself, it should be used alongside a Lightning wallet
 
@@ -56,7 +56,7 @@ In your `pubspec.yaml` file add:
 
 ```yaml
 dependencies:
-  nip47: ^0.0.2
+  nip47: ^0.1.0
 ```
 
 ## Usage
@@ -88,21 +88,27 @@ final nostrKeyPair = KeyPair.fromMnemonic(
 
 \* If your wallet also offers any other Nostr functionality, like a user profile and already has a keypair for that, do NOT use that same keypair for the wallet service for Nostr Wallet Connect, since the apps you connect to will be able to link your payments with your Nostr identity. Every wallet should have its own identity, and thus keypair, independent of the user's Nostr profile. What you can do though, is use the same mnemonic to derive both keypairs from, each with a different account index as shown above. For example the Nostr profile keypair could be derived from the mnemonic with account index 0 and the wallet service keypair with account index 1.
 
-### 2. Initialize a `Wallet` instance
+### 2. Initialize a `WalletService` instance
 
-`Wallet` is the main class of this package. It is a singleton class as normally you would only use one dedicated relay for NWC connections in your app. It takes care of connecting to the relay, subscribing to events and handling NIP47 requests and responses.
-
-To initialize an `Wallet` instance, you should provide it the Nostr keypair from the previous step.
-If it is not the first time and the user already has some active connections, also pass the list of existing NWC connections as saved by your app. If you want to get requests from when the app was not running, you can also pass the last event timestamp as saved by your app. You can also provide your preferred relay URL, but if you don't provide one, a default relay will be used.
+`WalletService` is the main class of this package. It takes care of the NWC protocol for the wallet service side. To initialize a `WalletService` instance, you should provide it the Nostr keypair from the previous step and a nip01 repository which will handle all relay connections.
 
 ```dart
 import 'package:nip47/nip47.dart';
 
-final existingConnections = <Connection>[/* existing connections here */];
 
-final nwcWallet = Wallet(
-    walletNostrKeyPair: nostrKeyPair,
-    connections: existingConnections,
+// Generate a key pair for the wallet
+final nostrKeyPair = KeyPair.generate();
+// Create a Nip01Repository instance to manage the relay connections
+//  it can be empty if you don't want to set any relay until an nwc
+//  connection is added. At that point the relay client will be created
+//  and managed by the clients manager.
+final nip01Repository = Nip01RepositoryImpl(
+    relayClientsManager: RelayClientsManagerImpl([]),
+);
+
+final nwcWalletService = WalletServiceImpl(
+    walletKeyPair: nostrKeyPair,
+    nip01repository: nip01Repository,
 );
 ```
 
@@ -113,11 +119,11 @@ For every request that comes in through the stream, you should handle it based o
 ```dart
 import 'package:nip47/nip47.dart';
 
-nwcWallet.requests.listen((request) {
+nwcWalletService.requests.listen((request) {
     switch (request.method) {
         case Method.getInfo:
             /* Todo yourself: Get the alias, color, network, blockHeight and blockHash of the Lightning wallet/node */
-            nwcWallet.getInfoRequestHandled(
+            nwcWalletService.getInfoRequestHandled(
                 request as GetInfoRequest,
                 alias: <alias>,
                 color: <color>,
@@ -140,13 +146,13 @@ nwcWallet.requests.listen((request) {
             );
         case Method.getBalance:
             // Todo yourself: get the balance from the wallet/node
-            nwcWallet.getBalanceRequestHandled(
+            nwcWalletService.getBalanceRequestHandled(
                 request as GetBalanceRequest,
                 balanceSat: <balance>,
             );
         case Method.makeInvoice:
             // Todo yourself: generate a new invoice with the wallet/node in your app
-            nwcWallet.makeInvoiceRequestHandled(
+            nwcWalletService.makeInvoiceRequestHandled(
                 request as MakeInvoiceRequest,
                 invoice: <invoice>,
                 description: <description>,
@@ -161,7 +167,7 @@ nwcWallet.requests.listen((request) {
             );
         case Method.lookupInvoice:
             // Todo yourself: lookup the invoice with the wallet/node in your app
-            nwcWallet.lookupInvoiceRequestHandled(
+            nwcWalletService.lookupInvoiceRequestHandled(
                 request as LookupInvoiceRequest,
                 invoice: <invoice>,
                 description: <description>,
@@ -178,35 +184,35 @@ nwcWallet.requests.listen((request) {
         case Method.payInvoice:
             // Todo yourself: Check the budget limits and expiry date of the connection before making the payment!!!
             // Todo yourself: Pay the invoice with the wallet/node in your app and get the preimage
-            nwcWallet.payInvoiceRequestHandled(
+            nwcWalletService.payInvoiceRequestHandled(
                 request as PayInvoiceRequest,
                 preimage: <preimage>
             );
         case Method.multiPayInvoice:
             // Todo yourself: Check the budget limits and expiry date of the connection before making the payments!!!
             // Todo yourself: Pay the invoices with the wallet/node in your app and get the preimages, pass them as a map with the invoice id as key
-            nwcWallet.multiPayInvoiceRequestHandled(
+            nwcWalletService.multiPayInvoiceRequestHandled(
                 request as MultiPayInvoiceRequest,
                 preimageById: <{preimagesById}>,
             );
         case Method.payKeysend:
             // Todo yourself: Check the budget limits and expiry date of the connection before making the payment!!!
             // Todo yourself: Pay the keysend with the wallet/node in your app and get the preimage
-            nwcWallet.payKeysendRequestHandled(
+            nwcWalletService.payKeysendRequestHandled(
                 request as PayKeysendRequest,
                 preimage: <preimage>
             );
         case Method.multiPayKeysend:
             // Todo yourself: Check the budget limits and expiry date of the connection before making the payments!!!
             // Todo yourself: Pay the keysends with the wallet/node in your app and get the preimages, pass them as a map with the keysend id as key
-            nwcWallet.multiPayKeysendRequestHandled(
+            nwcWalletService.multiPayKeysendRequestHandled(
                 request as MultiPayKeysendRequest,
                 preimageById: <{preimagesById}>,
             );
         case Method.listTransactions:
             // Todo yourself: Fetch the transactions from the wallet/node in your app
             final transactions = <Transaction>[];
-            nwcWallet.listTransactionsRequestHandled(
+            nwcWalletService.listTransactionsRequestHandled(
                 request as ListTransactionsRequest,
                 transactions: transactions,
             );
@@ -228,22 +234,23 @@ try {
     final preimage = <preimage>;
 
     // If no exception is thrown, respond to the payInvoice request with the preimage
-    nwcWallet.payInvoiceRequestHandled(request, preimage: preimage);
+    nwcWalletService.payInvoiceRequestHandled(request, preimage: preimage);
 } catch(e) {
     // If an exception is thrown, inform the website or app that the request could not be handled
     // instead of the specific request handled method and provide the nwc error code that fits best.
-    nwcWallet.failedToHandleRequest(request, error: Error.paymentFailed);
+    nwcWalletService.failedToHandleRequest(request, error: Error.paymentFailed);
 }
 ```
 
 ### 4. Create and store a new NWC connection
 
-To create a new NWC connection, you can use the `addConnection` method:
+To create a new NWC connection, you can use the `addConnection` method, specifying the relay to use for the connection as well as the methods permitted for this connection:
 
 ```dart
 import 'package:nip47/nip47.dart';
 
-final connection = await wallet.addConnection(
+final connection = await nwcWalletService.addConnection(
+    relayUrl: relayUrl,
     permittedMethods: [
         Method.getInfo,
         Method.getBalance,
@@ -255,7 +262,7 @@ final connection = await wallet.addConnection(
 println('Connection added with id: ${connection.pubkey} and URI: ${connection.uri}');
 ```
 
-The `addConnection` method returns the created connection with the pubkey, URI and permitted methods. You should store this connection in your app's secure storage mechanism to use it in the future when the app is restarted.
+The `addConnection` method returns the created connection with the pubkey, relayUrl, URI and permitted methods. You should store this connection in your app's secure storage mechanism to use it in the future when the app is restarted.
 Also let the user enter a readable name, spending limit(s), approval logic and the expiry date for the connection and store this data as well, so you can validate it when handling requests.
 The URI should be shown and copied by the user to enter it in the website, platform, app or any NWC-enabled service they want to connect its wallet to. The URI itself should not necessarily be persisted by your app after the user has copied it.
 
@@ -269,7 +276,6 @@ The URI should be shown and copied by the user to enter it in the website, platf
 
 All basic functionality of the NWC protocol is implemented and working in this package, so you should already be able to use it in your app to make it compatible with NWC apps. But software is never finished, so be aware that following things should still be added or improved upon in future versions:
 
-- [ ] Retry sending messages
 - [ ] Updating permitted methods of a connection
 - [ ] Connection status checks
 - [ ] lud16 in connection URI
