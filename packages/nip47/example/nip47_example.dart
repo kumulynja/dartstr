@@ -1,16 +1,24 @@
 import 'package:nip01/nip01.dart';
 import 'package:nip47/nip47.dart';
-import 'package:nip47/src/enums/bitcoin_network.dart';
-import 'package:nip47/src/enums/method.dart';
 
 Future<void> main() async {
+  // Choose a dedicated relay for a connection
+  const relayUrl = 'wss://nostr2.daedaluslabs.io';
+
+  // Create a Nip01Repository instance to manage the relay connection
+  final nip01Repository = Nip01RepositoryImpl(
+    relayClientsManager: RelayClientsManagerImpl([relayUrl]),
+  );
+
+  // Generate a key pair for the wallet
   final nostrKeyPair = KeyPair.generate();
-  final nwcWallet = Wallet(
-    relayUrl: 'wss://nostr2.daedaluslabs.io',
+  final nwcWallet = WalletServiceImpl(
     walletKeyPair: nostrKeyPair,
+    nip01repository: nip01Repository,
   );
 
   final connection = await nwcWallet.addConnection(
+    relayUrl: relayUrl,
     permittedMethods: [
       Method.getInfo,
       Method.getBalance,
@@ -22,7 +30,7 @@ Future<void> main() async {
   print('Connection URI: ${connection.uri}');
 
   // Listen for nwc requests
-  final sub = nwcWallet.nwcRequests.listen((request) {
+  final sub = nwcWallet.requests.listen((request) {
     print('Request: $request');
     switch (request.method) {
       case Method.getInfo:
@@ -89,5 +97,7 @@ Future<void> main() async {
     }
   });
 
-  sub.cancel();
+  Future.delayed(Duration(minutes: 10), () {
+    sub.cancel();
+  });
 }

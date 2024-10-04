@@ -14,6 +14,7 @@ export 'src/data/models/relay_message.dart';
 
 export 'src/data/providers/relay_stream_provider.dart';
 export 'src/data/clients/relay_client.dart';
+export 'src/data/clients/relay_clients_manager.dart';
 
 export 'src/enums/event_kind.dart';
 export 'src/enums/client_message_type.dart';

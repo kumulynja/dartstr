@@ -1,8 +1,11 @@
 import 'dart:developer';
 
 import 'package:async/async.dart';
-import 'package:nip01/nip01.dart';
 import 'package:nip01/src/data/clients/relay_clients_manager.dart';
+import 'package:nip01/src/data/models/event.dart';
+import 'package:nip01/src/data/models/filters.dart';
+import 'package:nip01/src/data/models/key_pair.dart';
+import 'package:nip01/src/data/models/kind_0_metadata.dart';
 
 abstract class Nip01Repository {
   List<String> get relayUrls;

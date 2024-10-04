@@ -6,11 +6,13 @@ import 'package:nip47/src/enums/method.dart';
 class Connection extends Equatable {
   final String pubkey;
   final List<Method> permittedMethods;
+  final String relayUrl;
   final String? uri;
 
   const Connection({
     required this.pubkey,
     required this.permittedMethods,
+    required this.relayUrl,
     this.uri,
   });
 
@@ -20,6 +22,7 @@ class Connection extends Equatable {
       permittedMethods: (map['permittedMethods'] as List)
           .map((e) => Method.fromPlaintext(e as String))
           .toList(),
+      relayUrl: map['relayUrl'] as String,
       uri: map['uri'] as String?,
     );
   }
@@ -28,6 +31,7 @@ class Connection extends Equatable {
     return {
       'pubkey': pubkey,
       'permittedMethods': permittedMethods.map((e) => e.plaintext).toList(),
+      'relayUrl': relayUrl,
       'uri': uri,
     };
   }
@@ -36,6 +40,7 @@ class Connection extends Equatable {
   List<Object?> get props => [
         pubkey,
         permittedMethods,
+        relayUrl,
         uri,
       ];
 }
