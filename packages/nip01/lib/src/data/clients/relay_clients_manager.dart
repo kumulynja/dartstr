@@ -36,9 +36,7 @@ class RelayClientsManagerImpl implements RelayClientsManager {
     final clients = <RelayClient>[];
     if (onlyRelayUrls != null) {
       for (var relayUrl in onlyRelayUrls) {
-        if (_relayClients.containsKey(relayUrl)) {
-          clients.add(_relayClients[relayUrl]!);
-        }
+        clients.add(getClient(relayUrl));
       }
     } else {
       clients.addAll(_relayClients.values);

@@ -2,22 +2,30 @@ import 'package:nip01/nip01.dart';
 import 'package:nip47/nip47.dart';
 
 Future<void> main() async {
-  // Choose a dedicated relay for a connection
-  const relayUrl = 'wss://nostr2.daedaluslabs.io';
-
-  // Create a Nip01Repository instance to manage the relay connection
-  final nip01Repository = Nip01RepositoryImpl(
-    relayClientsManager: RelayClientsManagerImpl([relayUrl]),
-  );
-
   // Generate a key pair for the wallet
   final nostrKeyPair = KeyPair.generate();
-  final nwcWallet = WalletServiceImpl(
+  // Create a Nip01Repository instance to manage the relay connections
+  //  it can be empty if you don't want to set any relay until an nwc
+  //  connection is added. At that point the relay client will be created
+  //  and managed by the clients manager.
+  final nip01Repository = Nip01RepositoryImpl(
+    relayClientsManager: RelayClientsManagerImpl([]),
+  );
+
+  final nwcWalletService = WalletServiceImpl(
     walletKeyPair: nostrKeyPair,
     nip01repository: nip01Repository,
   );
 
-  final connection = await nwcWallet.addConnection(
+  // Choose a dedicated relay for a connection
+  const relayUrl = 'wss://nostr2.daedaluslabs.io';
+
+  // Restore existing connections
+  final existingConnections = <Connection>[/* existing connections here */];
+  nwcWalletService.restoreConnections(existingConnections);
+
+  // Add a new connection
+  final connection = await nwcWalletService.addConnection(
     relayUrl: relayUrl,
     permittedMethods: [
       Method.getInfo,
@@ -30,11 +38,11 @@ Future<void> main() async {
   print('Connection URI: ${connection.uri}');
 
   // Listen for nwc requests
-  final sub = nwcWallet.requests.listen((request) {
+  final sub = nwcWalletService.requests.listen((request) {
     print('Request: $request');
     switch (request.method) {
       case Method.getInfo:
-        nwcWallet.getInfoRequestHandled(
+        nwcWalletService.getInfoRequestHandled(
           request as GetInfoRequest,
           alias: 'kumulynja',
           color: '#FF9900',
@@ -56,12 +64,12 @@ Future<void> main() async {
         );
 
       case Method.getBalance:
-        nwcWallet.getBalanceRequestHandled(request as GetBalanceRequest,
+        nwcWalletService.getBalanceRequestHandled(request as GetBalanceRequest,
             balanceSat: 987123);
       case Method.makeInvoice:
         const invoice =
             'lntbs750u1pngrch7dq8w3jhxaqpp56sm3029nrfdjg67rr7tcdcpvtnngq5dz90xxf7h5zq6cp0y6vhyssp529ge5rfqtfryp4dn2gr4qg84rejfus653j3cf975fj9wyyhz2a7q9qyysgqcqp6xqrgegrzjqdcadltawh0z6qmj6ql2qr5t4ndvk5xz0582ag98dgrz9ml37hhjkzyuuqqqdugqqvqqqqqqqqqqqqqqfqef3lceuteux4sv0xarvmtw2sck964s4xwn2wx8d4q4k772v8jn3jtfhf9tjhqge5nhesgt6rvxlkkwvn4f8kwmtx0ghjal72nkv8gsqpc4uyvg';
-        nwcWallet.makeInvoiceRequestHandled(
+        nwcWalletService.makeInvoiceRequestHandled(
           request as MakeInvoiceRequest,
           invoice: invoice,
           paymentHash:
@@ -73,11 +81,11 @@ Future<void> main() async {
           metadata: {},
         );
       case Method.listTransactions:
-        nwcWallet.listTransactionsRequestHandled(
+        nwcWalletService.listTransactionsRequestHandled(
             request as ListTransactionsRequest,
             transactions: []);
       case Method.lookupInvoice:
-        nwcWallet.lookupInvoiceRequestHandled(
+        nwcWalletService.lookupInvoiceRequestHandled(
           request as LookupInvoiceRequest,
           invoice:
               'lntbs750u1pngrch7dq8w3jhxaqpp56sm3029nrfdjg67rr7tcdcpvtnngq5dz90xxf7h5zq6cp0y6vhyssp529ge5rfqtfryp4dn2gr4qg84rejfus653j3cf975fj9wyyhz2a7q9qyysgqcqp6xqrgegrzjqdcadltawh0z6qmj6ql2qr5t4ndvk5xz0582ag98dgrz9ml37hhjkzyuuqqqdugqqvqqqqqqqqqqqqqqfqef3lceuteux4sv0xarvmtw2sck964s4xwn2wx8d4q4k772v8jn3jtfhf9tjhqge5nhesgt6rvxlkkwvn4f8kwmtx0ghjal72nkv8gsqpc4uyvg',
