@@ -4,14 +4,25 @@ abstract class RelayClientsManager {
   List<String> get relayUrls;
   RelayClient getClient(String relayUrl);
   List<RelayClient> getClients({List<String>? onlyRelayUrls});
-  Future<void> disposeClient(String relayUrl);
-  Future<void> disposeAll();
+  Future<void> disposeClient(
+    String relayUrl, {
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  });
+  Future<void> disposeAll({
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  });
 }
 
 class RelayClientsManagerImpl implements RelayClientsManager {
   final Map<String, RelayClient> _relayClients = {};
+  final int _maxRetryAttempts;
 
-  RelayClientsManagerImpl(List<String> relayUrls) {
+  RelayClientsManagerImpl(
+    List<String> relayUrls, {
+    int maxRetryAttempts = 5,
+  }) : _maxRetryAttempts = maxRetryAttempts {
     for (var relayUrl in relayUrls) {
       _relayClients[relayUrl] = RelayClientImpl(relayUrl);
     }
@@ -26,7 +37,10 @@ class RelayClientsManagerImpl implements RelayClientsManager {
       return _relayClients[relayUrl]!;
     }
 
-    final client = RelayClientImpl(relayUrl);
+    final client = RelayClientImpl(
+      relayUrl,
+      maxRetryAttempts: _maxRetryAttempts,
+    );
     _relayClients[relayUrl] = client;
     return client;
   }
@@ -45,18 +59,31 @@ class RelayClientsManagerImpl implements RelayClientsManager {
   }
 
   @override
-  Future<void> disposeClient(String relayUrl) async {
+  Future<void> disposeClient(
+    String relayUrl, {
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  }) async {
     final client = _relayClients[relayUrl];
     if (client != null) {
-      await client.dispose();
+      await client.dispose(
+        waitForRelayClosedMessage: waitForRelayClosedMessage,
+        timeoutSec: timeoutSec,
+      );
       _relayClients.remove(relayUrl);
     }
   }
 
   @override
-  Future<void> disposeAll() async {
+  Future<void> disposeAll({
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  }) async {
     for (final client in _relayClients.values) {
-      await client.dispose();
+      await client.dispose(
+        waitForRelayClosedMessage: waitForRelayClosedMessage,
+        timeoutSec: timeoutSec,
+      );
     }
     _relayClients.clear();
   }

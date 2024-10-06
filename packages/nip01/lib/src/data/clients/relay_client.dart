@@ -12,18 +12,28 @@ import 'package:nip01/src/data/providers/relay_stream_provider.dart';
 abstract class RelayClient {
   String get relayUrl;
   bool get isConnected;
-  Future<bool> publishEvent(Event event);
+  Future<bool> publishEvent(
+    Event event, {
+    int timeoutSec = 5,
+  });
   Future<Stream<Event>> requestEvents(
-      String subscriptionId, List<Filters> filters);
+    String subscriptionId,
+    List<Filters> filters, {
+    void Function(List<Event>)? onEose,
+  });
   Future<List<Event>> requestStoredEvents(
     List<Filters> filters,
   );
   Future<RelayClientEventSubscription?> closeSubscription(
     String subscriptionId, {
-    bool waitForRelayClosedMessage,
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
   });
   Future<void> disconnect();
-  Future<void> dispose();
+  Future<void> dispose({
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  });
 }
 
 class RelayClientImpl implements RelayClient {
@@ -124,30 +134,39 @@ class RelayClientImpl implements RelayClient {
   Future<List<Event>> requestStoredEvents(
     List<Filters> filters,
   ) async {
-    await _ensureConnected();
+    String subscriptionId = SecretGenerator.secretHex(64);
+    try {
+      await _ensureConnected();
 
-    final subscriptionId = SecretGenerator.secretHex(64);
+      // Keep track of the subscription
+      _eventSubscriptionsCache[subscriptionId] = RelayClientEventSubscription(
+        subscriptionId: subscriptionId,
+        filters: filters,
+      );
 
-    // Keep track of the subscription
-    _eventSubscriptionsCache[subscriptionId] = RelayClientEventSubscription(
-      subscriptionId: subscriptionId,
-      filters: filters,
-    );
+      // Send the subscription request to the relay
+      final message = ClientRequestMessage(
+        subscriptionId: subscriptionId,
+        filters: filters,
+      );
+      _relayStreamProvider.sendMessage(message);
 
-    // Send the subscription request to the relay
-    final message = ClientRequestMessage(
-      subscriptionId: subscriptionId,
-      filters: filters,
-    );
-    _relayStreamProvider.sendMessage(message);
+      // Wait for the end of stored events
+      await _eventSubscriptionsCache[subscriptionId]!.waitForEose();
 
-    // Wait for the end of stored events
-    await _eventSubscriptionsCache[subscriptionId]!.waitForEose();
+      // Unsubscribe from the relay
+      final closedSubscription = await closeSubscription(subscriptionId);
 
-    // Unsubscribe from the relay
-    final closedSubscription = await closeSubscription(subscriptionId);
-
-    return closedSubscription!.storedEvents;
+      return closedSubscription!.storedEvents;
+    } catch (e) {
+      log('Error requesting stored events: $e');
+      rethrow;
+    } finally {
+      // Be sure to remove the subscription from the cache if it's not already removed
+      if (_eventSubscriptionsCache.containsKey(subscriptionId)) {
+        await closeSubscription(subscriptionId);
+      }
+    }
   }
 
   @override
@@ -156,33 +175,47 @@ class RelayClientImpl implements RelayClient {
     bool waitForRelayClosedMessage = false,
     int timeoutSec = 10,
   }) async {
-    if (!_eventSubscriptionsCache.containsKey(subscriptionId)) {
-      log('No subscription found for ID: $subscriptionId');
-      return null;
+    try {
+      if (!_eventSubscriptionsCache.containsKey(subscriptionId)) {
+        log('No subscription found for ID: $subscriptionId');
+        return null;
+      }
+
+      final message = ClientCloseMessage(subscriptionId: subscriptionId);
+
+      _relayStreamProvider.sendMessage(message);
+
+      if (waitForRelayClosedMessage) {
+        await _eventSubscriptionsCache[subscriptionId]!
+            .waitForClose()
+            .timeout(Duration(seconds: 10), onTimeout: () {
+          log('Timeout waiting for close message from relay.');
+        });
+      }
+
+      // Dispose and remove the subscription from the cache
+      _eventSubscriptionsCache[subscriptionId]!.dispose();
+      final subscription =
+          _eventSubscriptionsCache.remove(message.subscriptionId);
+
+      return subscription;
+    } catch (e) {
+      log('Error closing subscription: $e');
+      // Even if there's an error, remove the subscription from the cache
+      _eventSubscriptionsCache.remove(subscriptionId);
+      rethrow;
+    } finally {
+      // Disconnect if no more subscriptions left in the cache
+      if (_eventSubscriptionsCache.isEmpty) {
+        log('No more subscriptions left for relay $_relayUrl.');
+        await disconnect();
+      }
     }
-
-    final message = ClientCloseMessage(subscriptionId: subscriptionId);
-
-    _relayStreamProvider.sendMessage(message);
-
-    if (waitForRelayClosedMessage) {
-      await _eventSubscriptionsCache[subscriptionId]!
-          .waitForClose()
-          .timeout(Duration(seconds: 10), onTimeout: () {
-        log('Timeout waiting for close message from relay.');
-      });
-    }
-
-    // Dispose and remove the subscription from the cache
-    _eventSubscriptionsCache[subscriptionId]!.dispose();
-    final subscription =
-        _eventSubscriptionsCache.remove(message.subscriptionId);
-
-    return subscription;
   }
 
   @override
   Future<void> disconnect() async {
+    log('Disconnecting from relay $_relayUrl');
     await _relayStreamSubscription?.cancel();
     _relayStreamSubscription = null;
     await _relayStreamProvider.disconnect();
@@ -191,10 +224,17 @@ class RelayClientImpl implements RelayClient {
   }
 
   @override
-  Future<void> dispose() async {
+  Future<void> dispose({
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  }) async {
     await Future.wait(
       _eventSubscriptionsCache.keys.map((subscriptionId) {
-        return closeSubscription(subscriptionId);
+        return closeSubscription(
+          subscriptionId,
+          waitForRelayClosedMessage: waitForRelayClosedMessage,
+          timeoutSec: timeoutSec,
+        );
       }),
     );
     await disconnect();
@@ -233,6 +273,7 @@ class RelayClientImpl implements RelayClient {
 
       log('Relay client successfully initialized for relay $_relayUrl');
       _isConnected = true;
+      _retryAttempts = 0;
     } catch (e) {
       log('Error initializing relay client for relay $_relayUrl: $e');
       rethrow;
@@ -253,9 +294,10 @@ class RelayClientImpl implements RelayClient {
         // Reconnect
         await _connect();
         log('Reconnected successfully to relay $_relayUrl after $_retryAttempts attempts');
-        _retryAttempts = 0;
       } else {
         log('Max retry attempts reached for relay $_relayUrl');
+        disconnect();
+        _retryAttempts = 0;
       }
     } catch (e) {
       log('Error reconnecting to relay $_relayUrl: $e');

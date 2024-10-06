@@ -22,21 +22,34 @@ abstract class Nip01Repository {
     String subscriptionId,
     List<Filters> filters, {
     List<String>? relayUrls,
+    void Function(List<Event>)? onEose,
   });
   Future<void> unsubscribeFromEvents(
     String subscriptionId, {
     List<String>? relayUrls,
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
   });
   Future<void> setUserMetadata({
     required KeyPair userKeyPair,
     required Kind0Metadata metadata,
+    List<String>? relayUrls,
+    int successTreshold = 1,
+    int timeoutSec = 5,
   });
   Future<Kind0Metadata> getUserMetadata(
     String userPubkey, {
     List<String>? relayUrls,
   });
-  Future<void> disposeRelayClient(String relayUrl);
-  Future<void> disposeAllRelayClients();
+  Future<void> disposeRelayClient(
+    String relayUrl, {
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  });
+  Future<void> disposeAllRelayClients({
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  });
 }
 
 class Nip01RepositoryImpl implements Nip01Repository {
@@ -63,13 +76,20 @@ class Nip01RepositoryImpl implements Nip01Repository {
     Event event, {
     int successTreshold = 1,
     List<String>? relayUrls,
+    int timeoutSec = 5,
   }) async {
     final relayApiClients = _relayClientsManager.getClients(
       onlyRelayUrls: relayUrls,
     );
 
     final results = await Future.wait(
-        relayApiClients.map((client) => client.publishEvent(event)));
+      relayApiClients.map(
+        (client) => client.publishEvent(
+          event,
+          timeoutSec: timeoutSec,
+        ),
+      ),
+    );
 
     // Todo: Maybe change this to return the relays that succeeded.
     final successCount = results.where((result) => result == true).length;
@@ -102,13 +122,21 @@ class Nip01RepositoryImpl implements Nip01Repository {
     String subscriptionId,
     List<Filters> filters, {
     List<String>? relayUrls,
+    void Function(List<Event>)? onEose,
   }) async {
     final relayApiClients = _relayClientsManager.getClients(
       onlyRelayUrls: relayUrls,
     );
 
-    final results = await Future.wait(relayApiClients
-        .map((client) => client.requestEvents(subscriptionId, filters)));
+    final results = await Future.wait(
+      relayApiClients.map(
+        (client) => client.requestEvents(
+          subscriptionId,
+          filters,
+          onEose: onEose,
+        ),
+      ),
+    );
 
     // Group all streams into one
     return StreamGroup.merge<Event>(results);
@@ -118,19 +146,31 @@ class Nip01RepositoryImpl implements Nip01Repository {
   Future<void> unsubscribeFromEvents(
     String subscriptionId, {
     List<String>? relayUrls,
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
   }) async {
     final relayApiClients = _relayClientsManager.getClients(
       onlyRelayUrls: relayUrls,
     );
 
-    await Future.wait(relayApiClients
-        .map((client) => client.closeSubscription(subscriptionId)));
+    await Future.wait(
+      relayApiClients.map(
+        (client) => client.closeSubscription(
+          subscriptionId,
+          waitForRelayClosedMessage: waitForRelayClosedMessage,
+          timeoutSec: timeoutSec,
+        ),
+      ),
+    );
   }
 
   @override
   Future<void> setUserMetadata({
     required KeyPair userKeyPair,
     required Kind0Metadata metadata,
+    List<String>? relayUrls,
+    int successTreshold = 1,
+    int timeoutSec = 5,
   }) async {
     try {
       final event = Event(
@@ -140,7 +180,11 @@ class Nip01RepositoryImpl implements Nip01Repository {
         content: metadata.content,
       ).sign(userKeyPair);
 
-      final success = await publishEvent(event);
+      final success = await publishEvent(
+        event,
+        relayUrls: relayUrls,
+        timeoutSec: timeoutSec,
+      );
       if (!success) {
         throw Exception('Failed to publish user metadata');
       }
@@ -175,12 +219,26 @@ class Nip01RepositoryImpl implements Nip01Repository {
   }
 
   @override
-  Future<void> disposeRelayClient(String relayUrl) async {
-    await _relayClientsManager.disposeClient(relayUrl);
+  Future<void> disposeRelayClient(
+    String relayUrl, {
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  }) async {
+    await _relayClientsManager.disposeClient(
+      relayUrl,
+      waitForRelayClosedMessage: waitForRelayClosedMessage,
+      timeoutSec: timeoutSec,
+    );
   }
 
   @override
-  Future<void> disposeAllRelayClients() async {
-    await _relayClientsManager.disposeAll();
+  Future<void> disposeAllRelayClients({
+    bool waitForRelayClosedMessage = false,
+    int timeoutSec = 10,
+  }) async {
+    await _relayClientsManager.disposeAll(
+      waitForRelayClosedMessage: waitForRelayClosedMessage,
+      timeoutSec: timeoutSec,
+    );
   }
 }
