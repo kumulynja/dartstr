@@ -1,3 +1,7 @@
+## 0.1.1
+
+ - Fix and improve relay connecting and disconnecting"
+
 ## 0.1.0
 
 - Abstract away relay connection and reconnect logic.
