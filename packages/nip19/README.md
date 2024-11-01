@@ -15,17 +15,6 @@ and the Flutter guide for
 
 This package contains the bech32-encoding for Nostr entities as described in the NIP-19 so they can be used informatively in Nostr clients, preventing confusion between different types of entities like private keys, public keys, and other Nostr entities.
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  nip19: ^0.0.3
-```
-
 ## Usage
 
 ```dart

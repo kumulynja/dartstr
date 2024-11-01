@@ -15,17 +15,6 @@ and the Flutter guide for
 
 This package contains the encrypted direct message for Nostr as described in the NIP-04. This includes the encryption and decryption of messages between two parties using their key pairs.
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  nip04: ^0.0.2
-```
-
 ## Usage
 
 ```dart

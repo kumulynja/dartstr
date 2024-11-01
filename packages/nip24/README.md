@@ -15,17 +15,6 @@ and the Flutter guide for
 
 This package contains the extra metadata fields that can be added to a Nostr kind 0 event as described in the NIP-24. This includes the display name, website, banner, and bot fields.
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  nip24: ^0.0.3
-```
-
 ## Usage
 
 ```dart

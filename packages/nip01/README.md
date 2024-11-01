@@ -15,17 +15,6 @@ and the Flutter guide for
 
 This package contains the basic protocol flows for Nostr as described in the NIP-01. This includes the creation of key pairs, event creation, event publishing, event requests, and event listening among others.
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  nip01: ^0.1.0
-```
-
 ## Usage
 
 ```dart

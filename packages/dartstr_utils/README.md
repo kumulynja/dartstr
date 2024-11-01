@@ -15,17 +15,6 @@ and the Flutter guide for
 
 - [x] Secret Generator: generate secure random number bytes or hex strings for use as secrets in Nostr.
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  dartstr_utils: ^0.0.2
-```
-
 ## Usage
 
 ```dart
