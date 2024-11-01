@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:nip01/nip01.dart';
+import 'package:nip01/nip01.dart' as nip01;
 import 'package:nip47/nip47.dart';
 import 'package:test/test.dart';
 
@@ -75,10 +75,10 @@ void main() {
     'adds a connection',
     () async {
       const relayUrl = 'wss://nostr2.daedaluslabs.io';
-      final nip01Repository = Nip01RepositoryImpl(
-        relayClientsManager: RelayClientsManagerImpl([relayUrl]),
+      final nip01Repository = nip01.Nip01RepositoryImpl(
+        relayClientsManager: nip01.RelayClientsManagerImpl([relayUrl]),
       );
-      final nostrKeyPair = KeyPair.generate();
+      final nostrKeyPair = nip01.KeyPair.generate();
       final nwcWallet = WalletServiceImpl(
         walletKeyPair: nostrKeyPair,
         nip01repository: nip01Repository,
@@ -101,6 +101,32 @@ void main() {
         startsWith('nostr+walletconnect://${nostrKeyPair.publicKey}?secret='),
       );
       expect(connection.uri, endsWith('&relay=$relayUrl'));
+
+      final infoEvents = await nip01Repository.getStoredEvents(
+        [
+          Filters.infoEvents(
+            connectionPubkey: connection.pubkey,
+            relayUrl: connection.relayUrl,
+          ),
+        ],
+        relayUrls: [relayUrl],
+      );
+
+      expect(infoEvents.length, 1);
+      final infoEvent = InfoEvent.fromEvent(infoEvents.first);
+
+      print(
+        'Petmitted methods in info event: ${infoEvent.permittedMethods.map((m) => m.plaintext).toList()}',
+      );
+
+      expect(infoEvent.permittedMethods, [
+        Method.getInfo,
+        Method.getBalance,
+        Method.makeInvoice,
+        Method.lookupInvoice,
+        MakeLiquidAddressMethod.instance,
+        PayLiquidMethod.instance,
+      ]);
     },
   );
 }

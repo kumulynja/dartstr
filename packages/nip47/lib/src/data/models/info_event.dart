@@ -12,6 +12,16 @@ class InfoEvent extends Equatable {
     required this.permittedMethods,
   });
 
+  factory InfoEvent.fromEvent(nip01.Event event) {
+    final permittedMethods = event.content.split(' ').map((plaintext) {
+      return Method.fromPlaintext(plaintext);
+    }).toList();
+
+    return InfoEvent(
+      permittedMethods: permittedMethods,
+    );
+  }
+
   nip01.Event toSignedEvent({
     required nip01.KeyPair creatorKeyPair,
     required String connectionPubkey,
