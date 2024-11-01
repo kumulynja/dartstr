@@ -1,6 +1,6 @@
 ## 0.0.4
 
- - Update nip01 to 0.1.1
+- Update `nip01` dependency to `0.1.1`
 
 ## 0.0.3
 
