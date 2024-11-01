@@ -3,6 +3,107 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-11-01
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`nip47` - `v0.1.1`](#nip47---v011)
+
+---
+
+#### `nip47` - `v0.1.1`
+
+
+## 2024-11-01
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`nip24` - `v0.0.4`](#nip24---v004)
+
+---
+
+#### `nip24` - `v0.0.4`
+
+
+## 2024-11-01
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`nip19` - `v0.0.4`](#nip19---v004)
+
+---
+
+#### `nip19` - `v0.0.4`
+
+ - Update nip01 to 0.1.1
+
+
+## 2024-11-01
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`nip06` - `v0.0.4`](#nip06---v004)
+
+---
+
+#### `nip06` - `v0.0.4`
+
+ - Update nip01 dependency to 0.1.1
+
+
+## 2024-11-01
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`nip01` - `v0.1.1`](#nip01---v011)
+
+---
+
+#### `nip01` - `v0.1.1`
+
+ - Fix and improve relay connecting and disconnecting"
+
+
 ## 2024-10-05
 
 ### Changes

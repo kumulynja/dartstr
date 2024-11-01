@@ -48,17 +48,6 @@ You should handle the requests in real-time and respond to them as soon as possi
 
 To use this package, your app should already have a Lightning Network node or wallet embedded or have access to a Lightning wallet API so you can handle the NWC requests. You can look at [ldk-node-flutter](https://github.com/LtbLightning/ldk-node-flutter) for a Flutter package that can be used to run a Lightning node on mobile.
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  nip47: ^0.1.0
-```
-
 ## Usage
 
 Next, you can follow the steps below to integrate Nostr Wallet Connect into your app:

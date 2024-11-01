@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:nip01/nip01.dart' as nip01;
+import 'package:nip47/src/data/models/method.dart';
 import 'package:nip47/src/enums/event_kind.dart';
-import 'package:nip47/src/enums/method.dart';
 
 @immutable
 class InfoEvent extends Equatable {
@@ -11,6 +11,16 @@ class InfoEvent extends Equatable {
   const InfoEvent({
     required this.permittedMethods,
   });
+
+  factory InfoEvent.fromEvent(nip01.Event event) {
+    final permittedMethods = event.content.split(' ').map((plaintext) {
+      return Method.fromPlaintext(plaintext);
+    }).toList();
+
+    return InfoEvent(
+      permittedMethods: permittedMethods,
+    );
+  }
 
   nip01.Event toSignedEvent({
     required nip01.KeyPair creatorKeyPair,

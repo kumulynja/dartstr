@@ -5,12 +5,11 @@ import 'package:meta/meta.dart';
 import 'package:nip01/nip01.dart';
 import 'package:nip04/nip04.dart';
 import 'package:nip47/src/data/models/tlv_record.dart';
-import 'package:nip47/src/enums/method.dart';
+import 'package:nip47/src/data/models/method.dart';
 import 'package:nip47/src/enums/transaction_type.dart';
 
-// Abstract base class for messages from relay to client
 @immutable
-abstract class Request extends Equatable {
+sealed class Request extends Equatable {
   final String id;
   final String connectionPubkey;
   final Method method;
@@ -23,14 +22,26 @@ abstract class Request extends Equatable {
     required this.createdAt,
   });
 
-  factory Request.fromEvent(
-    Event event,
-    String contentDecryptionPrivateKey,
-  ) {
-    String connectionPubkey = event.pubkey;
+  // Registry to hold custom request constructors
+  static final Map<String, Function(Map<String, dynamic>)>
+      _customRequestRegistry = {};
 
-    // Try to decrypt the content with the nip04 standard
-    String decryptedContent = Nip04.decrypt(
+  static void registerCustomRequests(
+    Map<CustomMethod, Function(Map<String, dynamic>)> requests,
+  ) {
+    for (var entry in requests.entries) {
+      if (!_customRequestRegistry.containsKey(entry.key.plaintext)) {
+        _customRequestRegistry[entry.key.plaintext] = entry.value;
+      } else {
+        print(
+            "Warning: Request for method '${entry.key.plaintext}' is already registered.");
+      }
+    }
+  }
+
+  factory Request.fromEvent(Event event, String contentDecryptionPrivateKey) {
+    final connectionPubkey = event.pubkey;
+    final decryptedContent = Nip04.decrypt(
       event.content,
       contentDecryptionPrivateKey,
       connectionPubkey,
@@ -40,117 +51,24 @@ abstract class Request extends Equatable {
     final method = content['method'] as String;
     final params = content['params'] as Map<String, dynamic>? ?? {};
 
-    switch (Method.fromPlaintext(method)) {
-      case Method.getInfo:
-        return GetInfoRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          createdAt: event.createdAt,
-        );
-      case Method.getBalance:
-        return GetBalanceRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          createdAt: event.createdAt,
-        );
-      case Method.makeInvoice:
-        return MakeInvoiceRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          amountMsat: params['amount'] as int,
-          description: params['description'] as String?,
-          descriptionHash: params['descriptionHash'] as String?,
-          expiry: params['expiry'] as int?,
-          createdAt: event.createdAt,
-        );
-      case Method.payInvoice:
-        return PayInvoiceRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          invoice: params['invoice'] as String,
-          createdAt: event.createdAt,
-        );
-      case Method.multiPayInvoice:
-        final invoices = (params['invoices'] as List)
-            .map((e) => MultiPayInvoiceRequestInvoicesElement(
-                  id: e['id'] as String?,
-                  invoice: e['invoice'] as String,
-                  amount: e['amount'] as int,
-                ))
-            .toList();
-        return MultiPayInvoiceRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          invoices: invoices,
-          createdAt: event.createdAt,
-        );
-      case Method.payKeysend:
-        return PayKeysendRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          amount: params['amount'] as int,
-          pubkey: params['pubkey'] as String,
-          preimage: params['preimage'] as String?,
-          tlvRecords: (params['tlvRecords'] as List)
-              .map((e) => TlvRecord.fromMap(e as Map<String, dynamic>))
-              .toList(),
-          createdAt: event.createdAt,
-        );
-      case Method.multiPayKeysend:
-        final keysends = (params['keysends'] as List)
-            .map((e) => MultiPayKeysendRequestInvoicesElement(
-                  id: e['id'] as String?,
-                  pubkey: e['pubkey'] as String,
-                  amount: e['amount'] as int,
-                  preimage: e['preimage'] as String?,
-                  tlvRecords: (e['tlvRecords'] as List)
-                      .map((e) => TlvRecord.fromMap(e as Map<String, dynamic>))
-                      .toList(),
-                ))
-            .toList();
-        return MultiPayKeysendRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          keysends: keysends,
-          createdAt: event.createdAt,
-        );
-      case Method.lookupInvoice:
-        return LookupInvoiceRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          paymentHash: params['paymentHash'] as String?,
-          invoice: params['invoice'] as String?,
-          createdAt: event.createdAt,
-        );
-      case Method.listTransactions:
-        return ListTransactionsRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          from: params['from'] as int?,
-          until: params['until'] as int?,
-          limit: params['limit'] as int?,
-          offset: params['offset'] as int?,
-          unpaid: params['unpaid'] as bool,
-          type: params['type'] == null
-              ? null
-              : TransactionType.fromValue(
-                  params['type'] as String,
-                ),
-          createdAt: event.createdAt,
-        );
-      default:
-        return UnknownRequest(
-          id: event.id,
-          connectionPubkey: connectionPubkey,
-          unknownMethod: method,
-          params: params,
-          createdAt: event.createdAt,
-        );
-    }
+    return Request.fromMap({
+      'id': event.id,
+      'connectionPubkey': connectionPubkey,
+      'method': method,
+      'createdAt': event.createdAt,
+      ...params,
+    });
   }
 
   factory Request.fromMap(Map<String, dynamic> map) {
     final method = Method.fromPlaintext(map['method'] as String);
+
+    // Check if there is a custom request registered for this method
+    if (_customRequestRegistry.containsKey(method.plaintext)) {
+      return _customRequestRegistry[method.plaintext]!(map);
+    }
+
+    // Handling for standard methods
     switch (method) {
       case Method.getInfo:
         return GetInfoRequest(
@@ -253,7 +171,7 @@ abstract class Request extends Equatable {
         return UnknownRequest(
           id: map['id'] as String,
           connectionPubkey: map['connectionPubkey'] as String,
-          unknownMethod: map['unknownMethod'] as String,
+          unknownMethod: map['method'] as String,
           params: map['params'] as Map<String, dynamic>,
           createdAt: map['createdAt'] as int,
         );
@@ -273,6 +191,8 @@ abstract class Request extends Equatable {
   List<Object?> get props => [id, connectionPubkey, method, createdAt];
 }
 
+// Standard request classes
+
 // Subclass for requests to get info like supported methods
 @immutable
 class GetInfoRequest extends Request {
@@ -281,9 +201,6 @@ class GetInfoRequest extends Request {
     required super.connectionPubkey,
     required super.createdAt,
   }) : super(method: Method.getInfo);
-
-  @override
-  List<Object?> get props => [...super.props];
 }
 
 // Subclass for requests to get balance
@@ -294,9 +211,6 @@ class GetBalanceRequest extends Request {
     required super.connectionPubkey,
     required super.createdAt,
   }) : super(method: Method.getBalance);
-
-  @override
-  List<Object?> get props => [...super.props];
 }
 
 // Subclass for requests to make a bolt11 invoice
@@ -590,4 +504,15 @@ class UnknownRequest extends Request {
 
   @override
   List<Object?> get props => [...super.props, unknownMethod, params];
+}
+
+// CustomRequest open for subclassing by users of the library
+@immutable
+abstract class CustomRequest extends Request {
+  const CustomRequest({
+    required super.id,
+    required super.connectionPubkey,
+    required super.method,
+    required super.createdAt,
+  });
 }

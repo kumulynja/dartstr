@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:nip47/src/enums/method.dart';
+import 'package:nip47/src/data/models/method.dart';
 
 @immutable
 class Connection extends Equatable {

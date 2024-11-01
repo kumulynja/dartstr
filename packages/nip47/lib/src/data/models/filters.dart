@@ -14,6 +14,22 @@ class Filters extends nip01.Filters {
     super.limit,
   });
 
+  factory Filters.infoEvents({
+    required String connectionPubkey,
+    required String relayUrl,
+    int? since,
+  }) =>
+      Filters(
+        kinds: [EventKind.info.value],
+        tags: {
+          'a': [
+            '${EventKind.info.value}:$connectionPubkey:',
+            relayUrl,
+          ]
+        },
+        since: since,
+      );
+
   factory Filters.requests({
     required String walletPublicKey,
     int? since,

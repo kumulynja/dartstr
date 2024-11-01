@@ -15,17 +15,6 @@ and the Flutter guide for
 
 This package contains the basic key derivation from mnemonic seed phrases for Nostr as described in the NIP-06.
 
-## Getting started
-
-### Installation
-
-In your `pubspec.yaml` file add:
-
-```yaml
-dependencies:
-  nip06: ^0.0.3
-```
-
 ## Usage
 
 ```dart
