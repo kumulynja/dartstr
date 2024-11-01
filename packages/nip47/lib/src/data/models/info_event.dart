@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:nip01/nip01.dart' as nip01;
+import 'package:nip47/src/data/models/method.dart';
 import 'package:nip47/src/enums/event_kind.dart';
-import 'package:nip47/src/enums/method.dart';
 
 @immutable
 class InfoEvent extends Equatable {

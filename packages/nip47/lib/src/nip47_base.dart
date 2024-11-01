@@ -14,7 +14,7 @@ import 'package:nip47/src/data/models/transaction.dart';
 import 'package:nip47/src/enums/bitcoin_network.dart';
 import 'package:nip47/src/enums/error_code.dart';
 import 'package:nip47/src/enums/event_kind.dart';
-import 'package:nip47/src/enums/method.dart';
+import 'package:nip47/src/data/models/method.dart';
 
 abstract class WalletService {
   List<Connection> get connections;

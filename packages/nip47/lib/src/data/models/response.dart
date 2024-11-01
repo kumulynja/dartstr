@@ -4,15 +4,14 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:nip01/nip01.dart' as nip01;
 import 'package:nip04/nip04.dart';
+import 'package:nip47/src/data/models/method.dart';
 import 'package:nip47/src/data/models/transaction.dart';
 import 'package:nip47/src/enums/bitcoin_network.dart';
 import 'package:nip47/src/enums/error_code.dart';
 import 'package:nip47/src/enums/event_kind.dart';
-import 'package:nip47/src/enums/method.dart';
 import 'package:nip47/src/enums/transaction_type.dart';
 
-@immutable
-abstract class Response extends Equatable {
+sealed class Response extends Equatable {
   final String resultType;
   final ErrorCode? error;
   final Map<String, dynamic>? result;
@@ -96,6 +95,7 @@ abstract class Response extends Equatable {
     required nip01.KeyPair creatorKeyPair,
     required String requestId,
     required String connectionPubkey,
+    String? dTagValue,
   }) {
     final content = jsonEncode(
       {
@@ -114,12 +114,6 @@ abstract class Response extends Equatable {
       connectionPubkey,
     );
 
-    final multiPayId = this is MultiPayInvoiceResponse
-        ? (this as MultiPayInvoiceResponse).id
-        : this is MultiPayKeysendResponse
-            ? (this as MultiPayKeysendResponse).id
-            : null;
-
     final partialEvent = nip01.Event(
       pubkey: creatorKeyPair.publicKey,
       createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -127,7 +121,7 @@ abstract class Response extends Equatable {
       tags: [
         ['e', requestId],
         ['p', connectionPubkey],
-        if (multiPayId != null) ['d', multiPayId],
+        if (dTagValue != null) ['d', dTagValue],
       ],
       content: encryptedContent,
     );
@@ -140,6 +134,8 @@ abstract class Response extends Equatable {
   @override
   List<Object?> get props => [resultType, error, result];
 }
+
+// Standard responses
 
 // Subclass for the get_info response
 @immutable
@@ -292,6 +288,21 @@ class MultiPayInvoiceResponse extends Response {
         );
 
   @override
+  nip01.Event toSignedEvent({
+    required nip01.KeyPair creatorKeyPair,
+    required String requestId,
+    required String connectionPubkey,
+    String? dTagValue,
+  }) {
+    return super.toSignedEvent(
+      creatorKeyPair: creatorKeyPair,
+      requestId: requestId,
+      connectionPubkey: connectionPubkey,
+      dTagValue: dTagValue ?? id,
+    );
+  }
+
+  @override
   List<Object?> get props => [...super.props, id, preimage];
 }
 
@@ -326,6 +337,21 @@ class MultiPayKeysendResponse extends Response {
             'preimage': preimage,
           },
         );
+
+  @override
+  nip01.Event toSignedEvent({
+    required nip01.KeyPair creatorKeyPair,
+    required String requestId,
+    required String connectionPubkey,
+    String? dTagValue,
+  }) {
+    return super.toSignedEvent(
+      creatorKeyPair: creatorKeyPair,
+      requestId: requestId,
+      connectionPubkey: connectionPubkey,
+      dTagValue: dTagValue ?? id,
+    );
+  }
 
   @override
   List<Object?> get props => [...super.props, id, preimage];
@@ -450,4 +476,13 @@ class ErrorResponse extends Response {
 
   @override
   List<Object?> get props => [...super.props, unknownMethod];
+}
+
+// Custom responses
+class CustomResponse extends Response {
+  const CustomResponse({
+    required super.resultType,
+    super.error,
+    super.result,
+  });
 }

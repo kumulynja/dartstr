@@ -16,7 +16,7 @@ export 'src/data/models/transaction.dart';
 export 'src/enums/bitcoin_network.dart';
 export 'src/enums/error_code.dart';
 export 'src/enums/event_kind.dart';
-export 'src/enums/method.dart';
+export 'src/data/models/method.dart';
 export 'src/enums/transaction_type.dart';
 
 export 'src/constants.dart';
