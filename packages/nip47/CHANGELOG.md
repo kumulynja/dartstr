@@ -1,3 +1,7 @@
+## 0.1.1+1
+
+ - **FIX**: wallet service repository parameter camel case.
+
 ## 0.1.1
 
 - Update `nip01` dependency to `0.1.1`.
