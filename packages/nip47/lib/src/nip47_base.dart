@@ -31,12 +31,12 @@ abstract class WalletService {
   });
   Future<void> getInfoRequestHandled(
     GetInfoRequest request, {
-    required String alias,
-    required String color,
-    required String pubkey,
-    required BitcoinNetwork network,
-    required int blockHeight,
-    required String blockHash,
+    String alias,
+    String color,
+    String pubkey,
+    BitcoinNetwork network,
+    int blockHeight,
+    String blockHash,
     required List<Method> methods,
   });
   Future<void> getBalanceRequestHandled(
