@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`nip47` - `v0.1.1+2`](#nip47---v0112)
+
+---
+
+#### `nip47` - `v0.1.1+2`
+
+ - **FIX**: make get info response params optional.
+
+
+## 2024-11-02
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`nip47` - `v0.1.1+1`](#nip47---v0111)
 
 ---

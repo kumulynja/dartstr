@@ -1,3 +1,7 @@
+## 0.1.1+2
+
+ - **FIX**: make get info response params optional.
+
 ## 0.1.1+1
 
  - **FIX**: wallet service repository parameter camel case.
