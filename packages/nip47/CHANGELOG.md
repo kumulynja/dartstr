@@ -1,3 +1,7 @@
+## 0.1.1+4
+
+ - **FIX**: make getInfoRequestHandled params option in WalletService class.
+
 ## 0.1.1+3
 
  - **FIX**: make getInfoRequestHandled params optional.
