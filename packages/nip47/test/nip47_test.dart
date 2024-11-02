@@ -81,7 +81,7 @@ void main() {
       final nostrKeyPair = nip01.KeyPair.generate();
       final nwcWallet = WalletServiceImpl(
         walletKeyPair: nostrKeyPair,
-        nip01repository: nip01Repository,
+        nip01Repository: nip01Repository,
       );
 
       final connection = await nwcWallet.addConnection(

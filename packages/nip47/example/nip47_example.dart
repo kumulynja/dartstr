@@ -14,7 +14,7 @@ Future<void> main() async {
 
   final nwcWalletService = WalletServiceImpl(
     walletKeyPair: nostrKeyPair,
-    nip01repository: nip01Repository,
+    nip01Repository: nip01Repository,
   );
 
   // Choose a dedicated relay for a connection

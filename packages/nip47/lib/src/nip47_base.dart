@@ -99,7 +99,7 @@ abstract class WalletService {
 
 class WalletServiceImpl implements WalletService {
   final nip01.KeyPair _walletKeyPair;
-  final nip01.Nip01Repository _nip01repository;
+  final nip01.Nip01Repository _nip01Repository;
   final Map<String, RequestSubscription> _requestSubscriptionForRelay = {};
   final Map<String, Connection> _connections = {};
   final StreamController<Request> _requestController =
@@ -107,9 +107,9 @@ class WalletServiceImpl implements WalletService {
 
   WalletServiceImpl({
     required nip01.KeyPair walletKeyPair,
-    required nip01.Nip01Repository nip01repository,
+    required nip01.Nip01Repository nip01Repository,
   })  : _walletKeyPair = walletKeyPair,
-        _nip01repository = nip01repository;
+        _nip01Repository = nip01Repository;
 
   @override
   List<Connection> get connections => _connections.values.toList();
@@ -136,7 +136,7 @@ class WalletServiceImpl implements WalletService {
       relayUrl: relayUrl,
     );
 
-    final isPublished = await _nip01repository.publishEvent(
+    final isPublished = await _nip01Repository.publishEvent(
       signedEvent,
       relayUrls: [relayUrl],
     );
@@ -179,7 +179,7 @@ class WalletServiceImpl implements WalletService {
           (connection) => connection.relayUrl == connectionRelay,
         )) {
       // Unsubscribe for requests from the relay
-      await _nip01repository.unsubscribeFromEvents(
+      await _nip01Repository.unsubscribeFromEvents(
         _requestSubscriptionForRelay[connectionRelay]!.subscriptionId,
         relayUrls: [connectionRelay],
       );
@@ -195,7 +195,7 @@ class WalletServiceImpl implements WalletService {
     required String relayUrl,
     int? since,
   }) async {
-    final events = await _nip01repository.getStoredEvents(
+    final events = await _nip01Repository.getStoredEvents(
       [
         Filters.requests(
           walletPublicKey: _walletKeyPair.publicKey,
@@ -417,7 +417,7 @@ class WalletServiceImpl implements WalletService {
     final subscriptionId = SecretGenerator.secretHex(64);
 
     // Listen to requests from the dedicated nwc relay
-    final events = await _nip01repository.subscribeToEvents(
+    final events = await _nip01Repository.subscribeToEvents(
       subscriptionId,
       [
         Filters.requests(
@@ -539,7 +539,7 @@ class WalletServiceImpl implements WalletService {
       throw Exception('No relay found for request');
     }
 
-    final isPublished = await _nip01repository
+    final isPublished = await _nip01Repository
         .publishEvent(signedResponseEvent, relayUrls: [relayUrl]);
 
     if (!isPublished) {
