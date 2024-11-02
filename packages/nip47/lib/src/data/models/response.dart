@@ -23,12 +23,12 @@ sealed class Response extends Equatable {
   });
 
   factory Response.getInfoResponse({
-    required String alias,
-    required String color,
-    required String pubkey,
-    required BitcoinNetwork network,
-    required int blockHeight,
-    required String blockHash,
+    String alias,
+    String color,
+    String pubkey,
+    BitcoinNetwork network,
+    int blockHeight,
+    String blockHash,
     required List<Method> methods,
   }) = GetInfoResponse;
 
@@ -140,21 +140,21 @@ sealed class Response extends Equatable {
 // Subclass for the get_info response
 @immutable
 class GetInfoResponse extends Response {
-  final String alias;
-  final String color;
-  final String pubkey;
-  final BitcoinNetwork network;
-  final int blockHeight;
-  final String blockHash;
+  final String? alias;
+  final String? color;
+  final String? pubkey;
+  final BitcoinNetwork? network;
+  final int? blockHeight;
+  final String? blockHash;
   final List<Method> methods;
 
   GetInfoResponse({
-    required this.alias,
-    required this.color,
-    required this.pubkey,
-    required this.network,
-    required this.blockHeight,
-    required this.blockHash,
+    this.alias,
+    this.color,
+    this.pubkey,
+    this.network,
+    this.blockHeight,
+    this.blockHash,
     required this.methods,
   }) : super(
           resultType: Method.getInfo.plaintext,
@@ -162,7 +162,7 @@ class GetInfoResponse extends Response {
             'alias': alias,
             'color': color,
             'pubkey': pubkey,
-            'network': network.name,
+            'network': network?.name,
             'blockHeight': blockHeight,
             'blockHash': blockHash,
             'methods': methods.map((method) => method.plaintext).toList(),
