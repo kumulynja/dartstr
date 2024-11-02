@@ -23,12 +23,12 @@ sealed class Response extends Equatable {
   });
 
   factory Response.getInfoResponse({
-    String alias,
-    String color,
-    String pubkey,
-    BitcoinNetwork network,
-    int blockHeight,
-    String blockHash,
+    String? alias,
+    String? color,
+    String? pubkey,
+    BitcoinNetwork? network,
+    int? blockHeight,
+    String? blockHash,
     required List<Method> methods,
   }) = GetInfoResponse;
 
