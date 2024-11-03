@@ -1,3 +1,7 @@
+## 0.1.2
+
+ - **FEAT**: expose method to handle custom request responses.
+
 ## 0.1.1+4
 
  - **FIX**: make getInfoRequestHandled params option in WalletService class.
