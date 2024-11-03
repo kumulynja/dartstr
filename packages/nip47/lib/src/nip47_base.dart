@@ -90,6 +90,10 @@ abstract class WalletService {
     ListTransactionsRequest request, {
     required List<Transaction> transactions,
   });
+  Future<void> customRequestHandled(
+    CustomRequest request, {
+    required CustomResponse response,
+  });
   Future<void> failedToHandleRequest(
     Request request, {
     required ErrorCode error,
@@ -369,6 +373,14 @@ class WalletServiceImpl implements WalletService {
     final response =
         Response.listTransactionsResponse(transactions: transactions);
 
+    await _sendResponseForRequest(request: request, response: response);
+  }
+
+  @override
+  Future<void> customRequestHandled(
+    CustomRequest request, {
+    required CustomResponse response,
+  }) async {
     await _sendResponseForRequest(request: request, response: response);
   }
 
