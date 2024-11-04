@@ -20,7 +20,7 @@ class RelayClientEventSubscription {
     this.onEose,
   });
 
-  Stream<Event> get events => _eventController.stream;
+  Stream<Event> get events => _eventController.stream.asBroadcastStream();
   List<Event> get storedEvents => _storedEvents;
 
   void addEvent(Event event) {
@@ -31,6 +31,9 @@ class RelayClientEventSubscription {
   }
 
   void endOfStoredEvents() {
+    if (_eose.isCompleted) {
+      return;
+    }
     _eose.complete();
     onEose?.call(_storedEvents);
   }

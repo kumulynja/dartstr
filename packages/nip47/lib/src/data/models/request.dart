@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -33,8 +34,7 @@ sealed class Request extends Equatable {
       if (!_customRequestRegistry.containsKey(entry.key.plaintext)) {
         _customRequestRegistry[entry.key.plaintext] = entry.value;
       } else {
-        print(
-            "Warning: Request for method '${entry.key.plaintext}' is already registered.");
+        log("Warning: Request for method '${entry.key.plaintext}' is already registered.");
       }
     }
   }

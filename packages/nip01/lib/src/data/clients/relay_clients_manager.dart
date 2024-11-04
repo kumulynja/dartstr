@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:nip01/src/data/clients/relay_client.dart';
 
 abstract class RelayClientsManager {
@@ -55,6 +57,7 @@ class RelayClientsManagerImpl implements RelayClientsManager {
     } else {
       clients.addAll(_relayClients.values);
     }
+    log('RelayClientsManagerImpl.getClients: ${clients.length} clients: $clients');
     return clients;
   }
 

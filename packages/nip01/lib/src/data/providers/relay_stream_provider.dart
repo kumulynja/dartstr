@@ -31,7 +31,8 @@ class RelayStreamProviderImpl implements RelayStreamProvider {
   String get relayUrl => _relayUrl;
 
   @override
-  Stream<RelayMessage> get messages => _messageController.stream;
+  Stream<RelayMessage> get messages =>
+      _messageController.stream.asBroadcastStream();
 
   @override
   Future<void> connect() async {
@@ -80,7 +81,7 @@ class RelayStreamProviderImpl implements RelayStreamProvider {
     }
 
     final serializedMessage = message.serialized;
-    log('Sending message: $serializedMessage');
+    log('Sending message: $serializedMessage to relay $_relayUrl');
     _channel?.sink.add(serializedMessage);
   }
 

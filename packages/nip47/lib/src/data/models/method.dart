@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 sealed class Method {
   final String plaintext;
 
@@ -39,7 +41,7 @@ sealed class Method {
       if (!_methodsRegistry.containsKey(method.plaintext)) {
         _methodsRegistry[method.plaintext] = method;
       } else {
-        print("Warning: Method '${method.plaintext}' is already registered.");
+        log("Warning: Method '${method.plaintext}' is already registered.");
       }
     }
   }

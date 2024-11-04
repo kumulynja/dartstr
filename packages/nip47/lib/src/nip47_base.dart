@@ -119,7 +119,7 @@ class WalletServiceImpl implements WalletService {
   List<Connection> get connections => _connections.values.toList();
 
   @override
-  Stream<Request> get requests => _requestController.stream;
+  Stream<Request> get requests => _requestController.stream.asBroadcastStream();
 
   @override
   Future<Connection> addConnection({
