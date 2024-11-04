@@ -1,3 +1,7 @@
+## 0.1.1+1
+
+ - **FIX**: connecting, disconnecting and reconnecting logic with lock.
+
 ## 0.1.1
 
 - Fix and improve relay connecting and disconnecting logic.

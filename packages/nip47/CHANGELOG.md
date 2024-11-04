@@ -1,3 +1,7 @@
+## 0.1.2+1
+
+ - **FIX**: connecting, disconnecting and reconnecting logic with lock.
+
 ## 0.1.2
 
  - **FEAT**: expose method to handle custom request responses.

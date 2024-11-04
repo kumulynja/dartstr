@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-11-04
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`nip01` - `v0.1.1+1`](#nip01---v0111)
+ - [`nip47` - `v0.1.2+1`](#nip47---v0121)
+ - [`nip06` - `v0.0.4+1`](#nip06---v0041)
+ - [`nip24` - `v0.0.4+1`](#nip24---v0041)
+ - [`nip19` - `v0.0.4+1`](#nip19---v0041)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `nip06` - `v0.0.4+1`
+ - `nip24` - `v0.0.4+1`
+ - `nip19` - `v0.0.4+1`
+
+---
+
+#### `nip01` - `v0.1.1+1`
+
+ - **FIX**: connecting, disconnecting and reconnecting logic with lock.
+
+#### `nip47` - `v0.1.2+1`
+
+ - **FIX**: connecting, disconnecting and reconnecting logic with lock.
+
+
 ## 2024-11-03
 
 ### Changes
