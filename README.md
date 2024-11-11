@@ -16,6 +16,7 @@ Import just the packages of NIPS you need and keep your project lightweight.
 > Bare keys and ids are implemented already, shareable identifiers with extra metadata not yet.
 
 - [x] [NIP-24](/packages/nip24): Extra metadata fields and tags
+- [x] [NIP-26](/packages/nip26): Delegated Event Signing
 - [x] [NIP-47](/packages/nip47): Wallet Connect
 
 > [!NOTE]
