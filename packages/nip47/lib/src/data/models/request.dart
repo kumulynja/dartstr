@@ -53,9 +53,9 @@ sealed class Request extends Equatable {
 
     return Request.fromMap({
       'id': event.id,
-      'connectionPubkey': connectionPubkey,
+      'connection_pubkey': connectionPubkey,
       'method': method,
-      'createdAt': event.createdAt,
+      'created_at': event.createdAt,
       ...params,
     });
   }
@@ -73,88 +73,88 @@ sealed class Request extends Equatable {
       case Method.getInfo:
         return GetInfoRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
-          createdAt: map['createdAt'] as int,
+          connectionPubkey: map['connection_pubkey'] as String,
+          createdAt: map['created_at'] as int,
         );
       case Method.getBalance:
         return GetBalanceRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
-          createdAt: map['createdAt'] as int,
+          connectionPubkey: map['connection_pubkey'] as String,
+          createdAt: map['created_at'] as int,
         );
       case Method.makeInvoice:
         return MakeInvoiceRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
+          connectionPubkey: map['connection_pubkey'] as String,
           amountMsat: map['amount'] as int,
           description: map['description'] as String?,
-          descriptionHash: map['descriptionHash'] as String?,
+          descriptionHash: map['description_hash'] as String?,
           expiry: map['expiry'] as int?,
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
       case Method.payInvoice:
         return PayInvoiceRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
+          connectionPubkey: map['connection_pubkey'] as String,
           invoice: map['invoice'] as String,
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
       case Method.multiPayInvoice:
         final invoices = (map['invoices'] as List)
             .map((e) => MultiPayInvoiceRequestInvoicesElement(
                   id: e['id'] as String?,
                   invoice: e['invoice'] as String,
-                  amount: e['amount'] as int,
+                  amountMsat: e['amount'] as int,
                 ))
             .toList();
         return MultiPayInvoiceRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
+          connectionPubkey: map['connection_pubkey'] as String,
           invoices: invoices,
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
       case Method.payKeysend:
         return PayKeysendRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
-          amount: map['amount'] as int,
+          connectionPubkey: map['connection_pubkey'] as String,
+          amountMsat: map['amount'] as int,
           pubkey: map['pubkey'] as String,
           preimage: map['preimage'] as String?,
-          tlvRecords: (map['tlvRecords'] as List)
+          tlvRecords: (map['tlv_records'] as List)
               .map((e) => TlvRecord.fromMap(e as Map<String, dynamic>))
               .toList(),
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
       case Method.multiPayKeysend:
         final keysends = (map['keysends'] as List)
             .map((e) => MultiPayKeysendRequestInvoicesElement(
                   id: e['id'] as String?,
                   pubkey: e['pubkey'] as String,
-                  amount: e['amount'] as int,
+                  amountMsat: e['amount'] as int,
                   preimage: e['preimage'] as String?,
-                  tlvRecords: (e['tlvRecords'] as List)
+                  tlvRecords: (e['tlv_records'] as List)
                       .map((e) => TlvRecord.fromMap(e as Map<String, dynamic>))
                       .toList(),
                 ))
             .toList();
         return MultiPayKeysendRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
+          connectionPubkey: map['connection_pubkey'] as String,
           keysends: keysends,
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
       case Method.lookupInvoice:
         return LookupInvoiceRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
-          paymentHash: map['paymentHash'] as String?,
+          connectionPubkey: map['connection_pubkey'] as String,
+          paymentHash: map['payment_hash'] as String?,
           invoice: map['invoice'] as String?,
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
       case Method.listTransactions:
         return ListTransactionsRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
+          connectionPubkey: map['connection_pubkey'] as String,
           from: map['from'] as int?,
           until: map['until'] as int?,
           limit: map['limit'] as int?,
@@ -165,15 +165,15 @@ sealed class Request extends Equatable {
               : TransactionType.fromValue(
                   map['type'] as String,
                 ),
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
       default:
         return UnknownRequest(
           id: map['id'] as String,
-          connectionPubkey: map['connectionPubkey'] as String,
+          connectionPubkey: map['connection_pubkey'] as String,
           unknownMethod: map['method'] as String,
           params: map['params'] as Map<String, dynamic>,
-          createdAt: map['createdAt'] as int,
+          createdAt: map['created_at'] as int,
         );
     }
   }
@@ -181,9 +181,9 @@ sealed class Request extends Equatable {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'connectionPubkey': connectionPubkey,
+      'connection_pubkey': connectionPubkey,
       'method': method.plaintext,
-      'createdAt': createdAt,
+      'created_at': createdAt,
     };
   }
 
@@ -236,9 +236,9 @@ class MakeInvoiceRequest extends Request {
   Map<String, dynamic> toMap() {
     return {
       ...super.toMap(),
-      'amount': amountSat,
+      'amount': amountSat * 1000,
       'description': description,
-      'descriptionHash': descriptionHash,
+      'description_hash': descriptionHash,
       'expiry': expiry,
     };
   }
@@ -305,57 +305,58 @@ class MultiPayInvoiceRequest extends Request {
 class MultiPayInvoiceRequestInvoicesElement {
   final String? id;
   final String invoice;
-  final int amount;
+  final int amountSat;
 
   const MultiPayInvoiceRequestInvoicesElement({
     this.id,
     required this.invoice,
-    required this.amount,
-  });
+    required amountMsat,
+  }) : amountSat = amountMsat ~/ 1000;
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'invoice': invoice,
-      'amount': amount,
+      'amount': amountSat * 1000,
     };
   }
 
-  List<Object?> get props => [id, invoice, amount];
+  List<Object?> get props => [id, invoice, amountSat];
 }
 
 // Subclass for requests for a keysend payment
 @immutable
 class PayKeysendRequest extends Request {
-  final int amount;
+  final int amountSat;
   final String pubkey;
   final String? preimage;
   final List<TlvRecord>? tlvRecords;
 
   const PayKeysendRequest({
-    required this.amount,
+    required amountMsat,
     required this.pubkey,
     this.preimage,
     this.tlvRecords,
     required super.id,
     required super.connectionPubkey,
     required super.createdAt,
-  }) : super(method: Method.payKeysend);
+  })  : amountSat = amountMsat ~/ 1000,
+        super(method: Method.payKeysend);
 
   @override
   Map<String, dynamic> toMap() {
     return {
       ...super.toMap(),
-      'amount': amount,
+      'amount': amountSat * 1000,
       'pubkey': pubkey,
       'preimage': preimage,
-      'tlvRecords': tlvRecords?.map((e) => e.toMap()).toList(),
+      'tlv_records': tlvRecords?.map((e) => e.toMap()).toList(),
     };
   }
 
   @override
   List<Object?> get props =>
-      [...super.props, amount, pubkey, preimage, tlvRecords];
+      [...super.props, amountSat, pubkey, preimage, tlvRecords];
 }
 
 // Subclass for requests to pay multiple keysend payments
@@ -386,30 +387,30 @@ class MultiPayKeysendRequest extends Request {
 class MultiPayKeysendRequestInvoicesElement extends Equatable {
   final String? id;
   final String pubkey;
-  final int amount;
+  final int amountSat;
   final String? preimage;
   final List<TlvRecord>? tlvRecords;
 
   const MultiPayKeysendRequestInvoicesElement({
     this.id,
     required this.pubkey,
-    required this.amount,
+    required amountMsat,
     this.preimage,
     this.tlvRecords,
-  });
+  }) : amountSat = amountMsat ~/ 1000;
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'pubkey': pubkey,
-      'amount': amount,
+      'amount': amountSat * 1000,
       'preimage': preimage,
-      'tlvRecords': tlvRecords?.map((e) => e.toMap()).toList(),
+      'tlv_records': tlvRecords?.map((e) => e.toMap()).toList(),
     };
   }
 
   @override
-  List<Object?> get props => [id, pubkey, amount, preimage, tlvRecords];
+  List<Object?> get props => [id, pubkey, amountSat, preimage, tlvRecords];
 }
 
 // Subclass for requests to look up an invoice
@@ -430,7 +431,7 @@ class LookupInvoiceRequest extends Request {
   Map<String, dynamic> toMap() {
     return {
       ...super.toMap(),
-      'paymentHash': paymentHash,
+      'payment_hash': paymentHash,
       'invoice': invoice,
     };
   }
@@ -497,7 +498,7 @@ class UnknownRequest extends Request {
   Map<String, dynamic> toMap() {
     return {
       ...super.toMap(),
-      'unknownMethod': unknownMethod,
+      'unknown_method': unknownMethod,
       'params': params,
     };
   }

@@ -36,14 +36,29 @@ class PayLiquidRequest extends CustomRequest {
 }
 
 class MakeLiquidAddressResponse extends CustomResponse {
-  final String liquidAddress;
+  final String address;
 
   MakeLiquidAddressResponse({
-    required this.liquidAddress,
-  }) : super(resultType: MakeLiquidAddressMethod.instance.plaintext);
+    required this.address,
+  }) : super(
+            resultType: MakeLiquidAddressMethod.instance.plaintext,
+            result: {'address': address});
 
   @override
-  List<Object?> get props => [...super.props, liquidAddress];
+  List<Object?> get props => [...super.props, address];
+}
+
+class PayLiquidResponse extends CustomResponse {
+  final String transactionId;
+
+  PayLiquidResponse({
+    required this.transactionId,
+  }) : super(
+            resultType: PayLiquidMethod.instance.plaintext,
+            result: {'transaction_id': transactionId});
+
+  @override
+  List<Object?> get props => [...super.props, transactionId];
 }
 
 void main() {
@@ -59,13 +74,13 @@ void main() {
     Request.registerCustomRequests({
       makeLiquidAddress: (Map<String, dynamic> map) => MakeLiquidAddressRequest(
             id: map['id'] as String,
-            connectionPubkey: map['connectionPubkey'] as String,
-            createdAt: map['createdAt'] as int,
+            connectionPubkey: map['connection_pubkey'] as String,
+            createdAt: map['created_at'] as int,
           ),
       payLiquid: (Map<String, dynamic> map) => PayLiquidRequest(
             id: map['id'] as String,
-            connectionPubkey: map['connectionPubkey'] as String,
-            createdAt: map['createdAt'] as int,
+            connectionPubkey: map['connection_pubkey'] as String,
+            createdAt: map['created_at'] as int,
             address: map['address'] as String,
           ),
     });

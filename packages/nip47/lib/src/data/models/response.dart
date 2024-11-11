@@ -99,7 +99,7 @@ sealed class Response extends Equatable {
   }) {
     final content = jsonEncode(
       {
-        'resultType': resultType,
+        'result_type': resultType,
         if (error != null)
           'error': {
             'code': error!.value,
@@ -163,8 +163,8 @@ class GetInfoResponse extends Response {
             'color': color,
             'pubkey': pubkey,
             'network': network?.name,
-            'blockHeight': blockHeight,
-            'blockHash': blockHash,
+            'block_height': blockHeight,
+            'block_hash': blockHash,
             'methods': methods.map((method) => method.plaintext).toList(),
           },
         );
@@ -228,13 +228,13 @@ class MakeInvoiceResponse extends Response {
             'type': TransactionType.incoming.name,
             if (invoice != null) 'invoice': invoice,
             if (description != null) 'description': description,
-            if (descriptionHash != null) 'descriptionHash': descriptionHash,
+            if (descriptionHash != null) 'description_hash': descriptionHash,
             if (preimage != null) 'preimage': preimage,
-            'paymentHash': paymentHash,
+            'payment_hash': paymentHash,
             'amount': amountSat * 1000, // invoice amount in msats
-            'feesPaid': feesPaidSat * 1000, // fees paid in msats
-            'createdAt': createdAt,
-            if (expiresAt != null) 'expiresAt': expiresAt,
+            'fees_paid': feesPaidSat * 1000, // fees paid in msats
+            'created_at': createdAt,
+            if (expiresAt != null) 'expires_at': expiresAt,
             'metadata': metadata,
           },
         );
@@ -389,14 +389,14 @@ class LookupInvoiceResponse extends Response {
             'type': TransactionType.incoming.name,
             if (invoice != null) 'invoice': invoice,
             if (description != null) 'description': description,
-            if (descriptionHash != null) 'descriptionHash': descriptionHash,
+            if (descriptionHash != null) 'description_hash': descriptionHash,
             if (preimage != null) 'preimage': preimage,
-            'paymentHash': paymentHash,
+            'payment_hash': paymentHash,
             'amount': amountSat * 1000, // invoice amount in msats
-            'feesPaid': feesPaidSat * 1000, // fees paid in msats
-            'createdAt': createdAt,
-            if (expiresAt != null) 'expiresAt': expiresAt,
-            if (settledAt != null) 'settledAt': settledAt,
+            'fees_paid': feesPaidSat * 1000, // fees paid in msats
+            'created_at': createdAt,
+            if (expiresAt != null) 'expires_at': expiresAt,
+            if (settledAt != null) 'settled_at': settledAt,
             'metadata': metadata,
           },
         );
@@ -438,19 +438,19 @@ class ListTransactionsResponse extends Response {
                     if (transaction.description != null)
                       'description': transaction.description,
                     if (transaction.descriptionHash != null)
-                      'descriptionHash': transaction.descriptionHash,
+                      'description_hash': transaction.descriptionHash,
                     if (transaction.preimage != null)
                       'preimage': transaction.preimage,
-                    'paymentHash': transaction.paymentHash,
+                    'payment_hash': transaction.paymentHash,
                     'amount':
                         transaction.amountSat * 1000, // invoice amount in msats
-                    'feesPaid':
+                    'fees_paid':
                         transaction.feesPaidSat * 1000, // fees paid in msats
-                    'createdAt': transaction.createdAt,
+                    'created_at': transaction.createdAt,
                     if (transaction.expiresAt != null)
-                      'expiresAt': transaction.expiresAt,
+                      'expires_at': transaction.expiresAt,
                     if (transaction.settledAt != null)
-                      'settledAt': transaction.settledAt,
+                      'settled_at': transaction.settledAt,
                     'metadata': transaction.metadata,
                   }).toList(),
           },
