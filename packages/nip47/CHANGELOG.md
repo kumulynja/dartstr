@@ -1,3 +1,7 @@
+## 0.1.2+2
+
+ - **FIX**: nwc params with underscore + correct amount conversions.
+
 ## 0.1.2+1
 
  - **FIX**: connecting, disconnecting and reconnecting logic with lock.
