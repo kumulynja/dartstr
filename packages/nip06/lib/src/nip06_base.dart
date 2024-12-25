@@ -12,10 +12,15 @@ class KeyPair extends nip01.KeyPair {
     return KeyPair(privateKey: keyPair.privateKey);
   }
 
-  factory KeyPair.fromMnemonic(String mnemonic, {int accountIndex = 0}) {
+  factory KeyPair.fromMnemonic(
+    String mnemonic, {
+    int accountIndex = 0,
+    String passphrase = '',
+  }) {
     final privateKey = Nip06.mnemonicToPrivateKey(
       mnemonic,
       accountIndex: accountIndex,
+      passphrase: passphrase,
     );
     return KeyPair(privateKey: privateKey);
   }
