@@ -41,8 +41,6 @@ abstract class RelayMessage extends Equatable {
           return RelayNoticeMessage(
             message: message[1],
           );
-        default:
-          throw ArgumentError('Invalid message type');
       }
     } else {
       throw ArgumentError('Invalid message format');
