@@ -20,7 +20,7 @@ Import just the packages of NIPS you need and keep your project lightweight.
 - [x] [NIP-47](/packages/nip47): Wallet Connect
 
 > [!NOTE]
-> Wallet side is implemented already, App side not yet
+> Wallet service side is implemented already, App/client side not yet
 
 # Utilities
 
