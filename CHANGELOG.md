@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`nip26` - `v1.1.2`](#nip26---v112)
+
+---
+
+#### `nip26` - `v1.1.2`
+
+ - **DOCS**: add repository to pubspec of nip26.
+
+
+## 2024-12-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`nip26` - `v1.1.1`](#nip26---v111)
 
 ---

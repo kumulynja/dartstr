@@ -1,3 +1,7 @@
+## 1.1.2
+
+ - **DOCS**: add repository to pubspec of nip26.
+
 ## 1.1.1
 
  - **DOCS**: add LICENSE to nip26.
