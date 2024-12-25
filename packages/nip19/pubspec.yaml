@@ -1,6 +1,6 @@
 name: nip19
 description: This package contains the bech32-encoding for Nostr entities as described in the NIP-19.
-version: 0.0.4+1
+version: 0.0.4+2
 repository: https://github.com/kumulynja/dartstr/tree/main/packages/nip19
 
 environment:
@@ -9,7 +9,7 @@ environment:
 # Add regular dependencies here.
 dependencies:
   bech32: ^0.2.2
-  nip01: ^0.1.1+1
+  nip01: ^0.1.1+2
   convert: ^3.1.1
   # path: ^1.8.0
 

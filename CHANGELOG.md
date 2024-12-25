@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-12-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`nip01` - `v0.1.1+2`](#nip01---v0112)
+ - [`nip06` - `v0.0.5`](#nip06---v005)
+ - [`nip26` - `v1.1.0`](#nip26---v110)
+ - [`nip24` - `v0.0.4+2`](#nip24---v0042)
+ - [`nip19` - `v0.0.4+2`](#nip19---v0042)
+ - [`nip47` - `v0.1.2+3`](#nip47---v0123)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `nip24` - `v0.0.4+2`
+ - `nip19` - `v0.0.4+2`
+ - `nip47` - `v0.1.2+3`
+
+---
+
+#### `nip01` - `v0.1.1+2`
+
+ - **FIX**: disconnect before reconnecting.
+
+#### `nip06` - `v0.0.5`
+
+ - **FEAT**: permit adding passphrase to generate key from mnemonic.
+
+#### `nip26` - `v1.1.0`
+
+ - **FEAT**: nip26 finished.
+ - **FEAT**: nip26 delegation added.
+
+
 ## 2024-11-11
 
 ### Changes

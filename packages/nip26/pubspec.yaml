@@ -1,6 +1,6 @@
 name: nip26
 description: A starting point for Dart libraries or applications.
-version: 1.0.0
+version: 1.1.0
 # repository: https://github.com/my_org/my_repo
 
 environment:
@@ -12,7 +12,7 @@ dependencies:
   convert: ^3.1.2
   crypto: ^3.0.6
   equatable: ^2.0.5
-  nip01: ^0.1.1+1
+  nip01: ^0.1.1+2
   # path: ^1.8.0
 
 dev_dependencies:

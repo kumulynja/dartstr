@@ -1,3 +1,7 @@
+## 0.1.1+2
+
+ - **FIX**: disconnect before reconnecting.
+
 ## 0.1.1+1
 
  - **FIX**: connecting, disconnecting and reconnecting logic with lock.
