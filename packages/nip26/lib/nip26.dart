@@ -5,4 +5,7 @@ library;
 
 export 'src/nip26_base.dart';
 
-// TODO: Export any libraries intended for clients of this package.
+// Export any libraries intended for clients of this package.
+export 'src/data/models/conditions_query.dart';
+export 'src/data/models/delegation_tag.dart';
+export 'src/data/models/delegation_token.dart';

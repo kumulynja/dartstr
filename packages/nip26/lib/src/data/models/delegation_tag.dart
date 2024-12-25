@@ -21,6 +21,7 @@ class DelegationTag extends Equatable {
     );
 
     if (delegationTag.isEmpty) {
+      // Todo: create a custom exception
       throw ArgumentError('No delegation tag found');
     }
 
