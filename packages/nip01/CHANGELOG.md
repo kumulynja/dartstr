@@ -1,3 +1,7 @@
+## 0.1.1+3
+
+ - **FIX**: unneccessary default switch case.
+
 ## 0.1.1+2
 
  - **FIX**: disconnect before reconnecting.

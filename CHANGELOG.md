@@ -15,6 +15,42 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`nip01` - `v0.1.1+3`](#nip01---v0113)
+ - [`nip47` - `v0.1.2+4`](#nip47---v0124)
+ - [`nip26` - `v1.1.3`](#nip26---v113)
+ - [`nip19` - `v0.0.4+3`](#nip19---v0043)
+ - [`nip06` - `v0.0.5+1`](#nip06---v0051)
+ - [`nip24` - `v0.0.4+3`](#nip24---v0043)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `nip47` - `v0.1.2+4`
+ - `nip26` - `v1.1.3`
+ - `nip19` - `v0.0.4+3`
+ - `nip06` - `v0.0.5+1`
+ - `nip24` - `v0.0.4+3`
+
+---
+
+#### `nip01` - `v0.1.1+3`
+
+ - **FIX**: unneccessary default switch case.
+
+
+## 2024-12-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`nip26` - `v1.1.2`](#nip26---v112)
 
 ---
