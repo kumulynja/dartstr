@@ -1,3 +1,7 @@
+## 1.1.4
+
+ - **DOCS**: add readme for nip26.
+
 ## 1.1.3
 
  - Update a dependency to the latest release.

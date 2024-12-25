@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`nip26` - `v1.1.4`](#nip26---v114)
+
+---
+
+#### `nip26` - `v1.1.4`
+
+ - **DOCS**: add readme for nip26.
+
+
+## 2024-12-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`nip01` - `v0.1.1+3`](#nip01---v0113)
  - [`nip47` - `v0.1.2+4`](#nip47---v0124)
  - [`nip26` - `v1.1.3`](#nip26---v113)
