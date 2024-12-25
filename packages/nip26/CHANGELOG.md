@@ -1,3 +1,7 @@
+## 1.1.5
+
+ - **DOCS**: update description of nip26.
+
 ## 1.1.4
 
  - **DOCS**: add readme for nip26.
