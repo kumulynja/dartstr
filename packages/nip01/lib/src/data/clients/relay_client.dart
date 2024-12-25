@@ -15,7 +15,7 @@ abstract class RelayClient {
   bool get isConnected;
   Future<bool> publishEvent(
     Event event, {
-    int timeoutSec = 5,
+    int timeoutSec = 10,
   });
   Future<Stream<Event>> requestEvents(
     String subscriptionId,
@@ -70,7 +70,7 @@ class RelayClientImpl implements RelayClient {
   @override
   Future<bool> publishEvent(
     Event event, {
-    int timeoutSec = 5,
+    int timeoutSec = 10,
   }) async {
     log('Publishing event: $event in relay $_relayUrl');
     try {
@@ -281,10 +281,12 @@ class RelayClientImpl implements RelayClient {
         },
         onError: (error) async {
           log('Stream error on relay $_relayUrl: $error');
+          await disconnect();
           await _reconnect();
         },
         onDone: () async {
           log('Stream done on relay $_relayUrl');
+          await disconnect();
           await _reconnect();
         },
         cancelOnError: true,
